@@ -1,17 +1,16 @@
-import tensorflow as tf
-#config = tf.compat.v1.ConfigProto()
-#config.gpu_options.allow_growth = True
-#sess = tf.compat.v1.Session(config=config)
+import wave
+from scipy.io.wavfile import read
 import numpy as np
 
-
 def main():
-    print("Hello World!")
-    c = tf.constant([[5.0, 2.0], [3.0, 4.0]])
-    d = tf.constant([[1.0, 1.0], [0.0, 1.0]])
-    e = tf.matmul(c, d)
-    print(e)
 
+    #sampling rate 16kHz and 1 sec wav file
+    #we need 400 sample for each frame (vedi slide 17)
+    #shift di 160
+    a = read("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav")
+    tot_frame = np.array(a[1], dtype=float)
+
+    a
 
 if __name__ == "__main__":
     main()
