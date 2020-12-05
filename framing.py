@@ -53,7 +53,7 @@ def main():
     f_max = sample_rate / 2                 # Nyquist freq.
     f_min = 300                             # User defined min freq.
 
-    # Copiato da slide 25:
+    # Rielaborato da slide 25:
     f_min_mel = 1125 * math.log(1 + f_min / 700)
     f_max_mel = 1125 * math.log(1 + f_max / 700)
     n_thresh = n_fb + 2                     # Number of thresholds
@@ -67,7 +67,7 @@ def main():
 
 
 
-    z = 1
+    z = 1       # Linea di debugging
 
 
 if __name__ == "__main__":
