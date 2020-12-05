@@ -13,8 +13,8 @@ def main():
     f_time_step = 0.010
     # Intrinsic parameters
     sample_rate = wave.open("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav", 'rb').getframerate()
-    f_dur = f_time_dur*sample_rate      # Number of samples in each frame
-    f_step = f_time_step*sample_rate    # Number of samples of each frame step
+    f_dur = int(f_time_dur*sample_rate)      # Number of samples in each frame
+    f_step = int(f_time_step*sample_rate)    # Number of samples of each frame step
 
     src = read("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav")
     tot_samples = src[0]
@@ -25,6 +25,13 @@ def main():
     deb = len(samples[last_idx:-1])
     pad = int(f_dur-len(samples[last_idx:tot_samples]))
     samples = np.pad(samples, (0, pad))
+
+    # Frame extraction
+    frame_mat = []
+    for i in range(0, last_idx, f_step):
+        frame_mat.append(samples[i:i+f_step])
+
+    frame_mat = np.array(frame_mat)         # Convert the list in a proper numpy array
 
 
 if __name__ == "__main__":
