@@ -22,7 +22,6 @@ def main():
 
     # Padding
     last_idx = int(math.ceil(tot_samples/f_step-1)*f_step)
-    deb = len(samples[last_idx:-1])
     pad = int(f_dur-len(samples[last_idx:tot_samples]))
     samples = np.pad(samples, (0, pad))
 
