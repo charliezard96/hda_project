@@ -32,21 +32,21 @@ def main():
 
     frame_mat = np.array(frame_mat)         # Convert the list in a proper numpy array
 
-    #DFT
+    # DFT
     window = np.hamming(f_dur)
     frame_mat_win = np.multiply(frame_mat, window)
 
     dft_frame_mat = np.fft.fft(frame_mat_win)
 
-    #only N/2+1 samples are significant
-    Periodogram_frame = []
+    # Only N/2+1 samples are significant
+    periodogram_frame = []
     for i in range(0, dft_frame_mat.shape[0]):
         tmp = dft_frame_mat[i, 0:math.ceil(f_dur/2)]
-        abs_tmp = [abs(number) for number in tmp]
-        Periodogram = (tmp*tmp)/f_dur
-        Periodogram_frame.append(Periodogram)
+        abs_tmp = np.array([abs(number) for number in tmp])
+        periodogram = (abs_tmp**2)/f_dur
+        periodogram_frame.append(periodogram)
 
-    Periodogram_frame_mat = np.array(Periodogram_frame)
+    Periodogram_frame_mat = np.array(periodogram_frame)
     z = 1
 
 if __name__ == "__main__":
