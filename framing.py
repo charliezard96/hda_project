@@ -39,14 +39,14 @@ def main():
     dft_frame_mat = np.fft.fft(frame_mat_win)
 
     # Only N/2+1 samples are significant
-    periodogram_frame = []
+    periodogram_mat = []
     for i in range(0, dft_frame_mat.shape[0]):
-        tmp = dft_frame_mat[i, 0:math.ceil(f_dur/2)]
+        tmp = dft_frame_mat[i, 0:math.ceil(f_dur/2)+1]
         abs_tmp = np.array([abs(number) for number in tmp])
         periodogram = (abs_tmp**2)/f_dur
-        periodogram_frame.append(periodogram)
+        periodogram_mat.append(periodogram)
 
-    Periodogram_frame_mat = np.array(periodogram_frame)
+    periodogram_mat = np.array(periodogram_mat)
     z = 1
 
 if __name__ == "__main__":
