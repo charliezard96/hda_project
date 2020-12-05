@@ -28,10 +28,26 @@ def main():
     # Frame extraction
     frame_mat = []
     for i in range(0, last_idx, f_step):
-        frame_mat.append(samples[i:i+f_step])
+        frame_mat.append(samples[i:i+f_dur])
 
     frame_mat = np.array(frame_mat)         # Convert the list in a proper numpy array
 
+    #DFT
+    window = np.hamming(f_dur)
+    frame_mat_win = np.multiply(frame_mat, window)
+
+    dft_frame_mat = np.fft.fft(frame_mat_win)
+
+    #only N/2+1 samples are significant
+    Periodogram_frame = []
+    for i in range(0, dft_frame_mat.shape[0]):
+        tmp = dft_frame_mat[i, 0:math.ceil(f_dur/2)]
+        abs_tmp = [abs(number) for number in tmp]
+        Periodogram = (tmp*tmp)/f_dur
+        Periodogram_frame.append(Periodogram)
+
+    Periodogram_frame_mat = np.array(Periodogram_frame)
+    z = 1
 
 if __name__ == "__main__":
     main()
