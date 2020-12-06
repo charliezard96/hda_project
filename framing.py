@@ -68,9 +68,14 @@ def main():
         # Non chiaro cosa "nDFT", assumo il numero di samples della dft (prima del periodogram)
         # NB:   se nDFT=Numero colone periodogram gli indici arrivano massimo a 100, quindi i restandi 100 sarebbero inutili, per questo ho scelto il numero dei sample della dft
         #       Inoltre con il "+1" arrivano a 200, mentre senza solo a 199, quindi ho lasciato l'ho lasciato, anche se non ho propriamente capito a cosa serva
-        freq_idx[i] = int((dft_frame_mat.shape[1]+1)*freq_vec[i]/sample_rate) # Indici delle mel-freq nelle righe della matrice del periodogram
+        freq_idx[i] = int((dft_frame_mat.shape[1] + 1) * freq_vec[i] / sample_rate) # Indici delle mel-freq nelle righe della matrice del periodogram
 
-    # Creo ora una matrice le cui righe siano i valori effettivi
+    # Creo ora una matrice le cui righe siano i valori effettivi di ogni filtro
+
+    mel_filterbanks = []
+    for i in range(n_fb):
+        up_step = freq_idx[i + 1] - freq_idx[i] + 1
+        down_step = freq_idx[i + 2] - freq_idx[i + 1]
 
     z = 1       # Linea di debugging
 
