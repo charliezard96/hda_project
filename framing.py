@@ -60,12 +60,17 @@ def main():
     mel_step = (f_max_mel - f_min_mel) / (n_thresh - 1)
     mel_vec = np.zeros(n_thresh)            # Thresholds in mel-space
     freq_vec = np.zeros(n_thresh)           # Equivalent thresholds' freq.
+    freq_idx = np.zeros(n_thresh)
 
     for i in range(n_thresh):
         mel_vec[i] = f_min_mel + i * mel_step
         freq_vec[i] = 700 * (math.exp(mel_vec[i] / 1125) - 1)
+        # Non chiaro cosa "nDFT", assumo il numero di samples della dft (prima del periodogram)
+        # NB:   se nDFT=Numero colone periodogram gli indici arrivano massimo a 100, quindi i restandi 100 sarebbero inutili, per questo ho scelto il numero dei sample della dft
+        #       Inoltre con il "+1" arrivano a 200, mentre senza solo a 199, quindi ho lasciato l'ho lasciato, anche se non ho propriamente capito a cosa serva
+        freq_idx[i] = int((dft_frame_mat.shape[1]+1)*freq_vec[i]/sample_rate) # Indici delle mel-freq nelle righe della matrice del periodogram
 
-
+    # Creo ora una matrice le cui righe siano i valori effettivi
 
     z = 1       # Linea di debugging
 
