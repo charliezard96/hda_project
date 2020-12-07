@@ -27,7 +27,7 @@ def main():
 
     # Frame extraction
     frame_mat = []
-    for i in range(0, last_idx, f_step):
+    for i in range(0, last_idx + 1, f_step):
         frame_mat.append(samples[i:i + f_dur])
 
     frame_mat = np.array(frame_mat)         # Convert the list in a proper numpy array
