@@ -85,6 +85,9 @@ def main():
     log_mat = np.log(np.matmul(periodogram_mat, mel_filterbanks))
     dct_mat = dct(log_mat)
     dct_mat = dct_mat[:, 1:13]
+
+    # Overall energy on raw frame signal
+    energy = np.log10(np.sum(frame_mat**2, axis=1))
     z = 1       # Linea di debugging
 
     #additional features
