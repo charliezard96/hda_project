@@ -1,5 +1,6 @@
 import wave
 from scipy.io.wavfile import read
+from scipy.fftpack import dct
 import numpy as np
 import math
 
@@ -82,7 +83,8 @@ def main():
     # Ogni colonna è un filterbank, quindi basta un prodotto tra matrici pe applicare i filti e sommare i valori
     # Apply mel_filterbanks and compute log(E)
     log_mat = np.log(np.matmul(periodogram_mat, mel_filterbanks))
-
+    dct_mat = dct(log_mat)
+    dct_mat = dct_mat[:, 1:13]
     z = 1       # Linea di debugging
 
 
