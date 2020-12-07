@@ -87,6 +87,12 @@ def main():
     dct_mat = dct_mat[:, 1:13]
     z = 1       # Linea di debugging
 
+    #additional features
+    #delta coefficient
+    delta_features_mat = np.zeros(dct_mat.shape)
+    for i in range(0, dct_mat.shape[0]):
+        delta_fetures_mat[i,j] =
+
 
 if __name__ == "__main__":
     main()
