@@ -4,6 +4,21 @@ from scipy.fftpack import dct
 import numpy as np
 import math
 
+def extraction_dinamic(input):
+    dim = input.shape[1]
+    features_mat = np.zeros(input.shape)
+
+    m1 = input[:, 2:dim] - input[:, 0:(dim-2)]
+    m2 = 2 * (input[:, 4:dim] - input[:, 0:dim-4])
+    features_mat[:, 1:dim-1] = m1
+    features_mat[:, 2:dim-2] += m2
+    features_mat[:, 0] = input[:, 1] + input[:, 2]
+    features_mat[:, 1] += input[:, 3]
+    features_mat[:, dim-2] += (-1) * input[:, dim-4]
+    features_mat[:, dim-1] = (-1) * input[:, dim-2] - input[:, dim-3]
+    features_mat = features_mat / 10
+    return (features_mat)
+
 def main():
 
     #sampling rate 16kHz and 1 sec wav file
@@ -96,11 +111,19 @@ def main():
     m1 = dct_mat[:, 2:12] - dct_mat[:, 0:10]
     m2 = 2 * (dct_mat[:, 4:12] - dct_mat[:, 0:8])
     delta_features_mat[:, 1:11] = m1
-    delta_features_mat = delta_features_mat[:, 2:10] + m2
+    delta_features_mat[:, 2:10] += m2
     delta_features_mat[:, 0] = dct_mat[:, 1] + dct_mat[:, 2]
     delta_features_mat[:, 1] += dct_mat[:, 3]
     delta_features_mat[:, 10] += (-1) * dct_mat[:, 8]
     delta_features_mat[:, 11] = (-1) * dct_mat[:, 10] - dct_mat[:, 9]
+    delta_features_mat = delta_features_mat/10
+
+    # extraction_dinamics è la funzione esterna che ci fa le riche di codice sopra
+    delta_feat2 = extraction_dinamic(dct_mat)
+    #a è per controllare che la funzione ritorni lo stesso risultato di come avevamo fatto sopra
+    a = delta_features_mat-delta_feat2
+
+    delta_delta_mat = extraction_dinamic(delta_feat2)
     z = 1  # Linea di debugging
 
 if __name__ == "__main__":
