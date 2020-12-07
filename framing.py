@@ -88,14 +88,20 @@ def main():
 
     # Overall energy on raw frame signal
     energy = np.log10(np.sum(frame_mat**2, axis=1))
-    z = 1       # Linea di debugging
 
     #additional features
     #delta coefficient
     delta_features_mat = np.zeros(dct_mat.shape)
-    for i in range(0, dct_mat.shape[0]):
-        delta_fetures_mat[i,j] =
 
+    m1 = dct_mat[:, 2:12] - dct_mat[:, 0:10]
+    m2 = 2 * (dct_mat[:, 4:12] - dct_mat[:, 0:8])
+    delta_features_mat[:, 1:11] = m1
+    delta_features_mat = delta_features_mat[:, 2:10] + m2
+    delta_features_mat[:, 0] = dct_mat[:, 1] + dct_mat[:, 2]
+    delta_features_mat[:, 1] += dct_mat[:, 3]
+    delta_features_mat[:, 10] += (-1) * dct_mat[:, 8]
+    delta_features_mat[:, 11] = (-1) * dct_mat[:, 10] - dct_mat[:, 9]
+    z = 1  # Linea di debugging
 
 if __name__ == "__main__":
     main()
