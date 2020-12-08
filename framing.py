@@ -1,8 +1,13 @@
 import wave
 from scipy.io.wavfile import read
+from scipy.signal import periodogram as comp_per
 from scipy.fftpack import dct
 import numpy as np
 import math
+import matplotlib.pyplot as plt # Visualization library
+# libreria esterna per i delta, va installata manualmente prima di usarla
+# from python_speech_features.base import delta
+
 
 def extraction_dinamic(input):
     dim = input.shape[1]
@@ -64,6 +69,10 @@ def main():
 
     periodogram_mat = np.array(periodogram_mat)
 
+    # Prova della fuzione, i risultati son diversi, probabilmente usa una dft diversa (senza hamming?)
+    # prova = np.array(comp_per(frame_mat[0, :], fs=sample_rate)[1])
+
+
     # Mel-filterbanks
     n_fb = 26                               # Number of filters
     f_max = sample_rate / 2                 # Nyquist freq.
@@ -98,6 +107,13 @@ def main():
     # Ogni colonna è un filterbank, quindi basta un prodotto tra matrici pe applicare i filti e sommare i valori
     # Apply mel_filterbanks and compute log(E)
     log_mat = np.log(np.matmul(periodogram_mat, mel_filterbanks))
+
+    # Show spectrogram
+    plt.figure(figsize=(20, 4))
+    spectrogram = plt.imshow(np.transpose(log_mat))
+    # Mostra lo spettrogramma
+    # plt.show()
+
     dct_mat = dct(log_mat)
     dct_mat = dct_mat[:, 1:13]
 
@@ -118,8 +134,12 @@ def main():
     delta_features_mat[:, 11] = (-1) * dct_mat[:, 10] - dct_mat[:, 9]
     delta_features_mat = delta_features_mat/10
 
+    # Prova della funzione già pronta (risultati diversi)
+    prova_delta = delta(dct_mat, 2)
+
+
     # extraction_dinamics è la funzione esterna che ci fa le riche di codice sopra
-    delta_feat2 = extraction_dinamic(dct_mat)
+    # delta_feat2 = extraction_dinamic(dct_mat)
     #a è per controllare che la funzione ritorni lo stesso risultato di come avevamo fatto sopra
     a = delta_features_mat-delta_feat2
 
