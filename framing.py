@@ -24,6 +24,8 @@ def extraction_dinamic(input):
     features_mat = features_mat / 10
     return (features_mat)
 
+
+
 def main():
 
     #sampling rate 16kHz and 1 sec wav file
@@ -135,15 +137,19 @@ def main():
     delta_features_mat = delta_features_mat/10
 
     # Prova della funzione già pronta (risultati diversi)
-    prova_delta = delta(dct_mat, 2)
+    # prova_delta = delta(dct_mat, 2)
 
 
     # extraction_dinamics è la funzione esterna che ci fa le riche di codice sopra
-    # delta_feat2 = extraction_dinamic(dct_mat)
+    delta_feat2 = extraction_dinamic(dct_mat)
     #a è per controllare che la funzione ritorni lo stesso risultato di come avevamo fatto sopra
     a = delta_features_mat-delta_feat2
 
     delta_delta_mat = extraction_dinamic(delta_feat2)
+
+    # Compute energies
+    delta_energy = np.log10(np.sum(delta_features_mat**2, axis=1))
+    delta2_energy = np.log10(np.sum(delta_delta_mat**2, axis=1))
     z = 1  # Linea di debugging
 
 if __name__ == "__main__":
