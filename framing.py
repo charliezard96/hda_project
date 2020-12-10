@@ -6,14 +6,14 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt # Visualization library
 # libreria esterna per i delta, va installata manualmente prima di usarla
-from python_speech_features.base import delta
+# from python_speech_features.base import delta
 
 
 def extraction_dinamic(input):
     dim = input.shape[1]
     features_mat = np.zeros(input.shape)
 
-    m1 = input[:, 2:dim] - input[:, 0:(dim-2)]
+    m1 = input[:, 2:dim] - input[:, 0:dim-2]
     m2 = 2 * (input[:, 4:dim] - input[:, 0:dim-4])
     features_mat[:, 1:dim-1] = m1
     features_mat[:, 2:dim-2] += m2
@@ -38,9 +38,11 @@ def main():
     #sampling rate 16kHz and 1 sec wav file
     #we need 400 sample for each frame (vedi slide 17)
     #shift di 160
+
     # Desired parameters
     f_time_dur = 0.025
     f_time_step = 0.010
+
     # Intrinsic parameters
     sample_rate = wave.open("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav", 'rb').getframerate()
     f_dur = int(f_time_dur * sample_rate)      # Number of samples in each frame
@@ -100,8 +102,6 @@ def main():
         mel_vec[i] = f_min_mel + i * mel_step
         freq_vec[i] = 700 * (math.exp(mel_vec[i] / 1125) - 1)
         # Non chiaro cosa "nDFT", assumo il numero di samples della dft (prima del periodogram)
-        # NB:   se nDFT=Numero colone periodogram gli indici arrivano massimo a 100, quindi i restandi 100 sarebbero inutili, per questo ho scelto il numero dei sample della dft
-        #       Inoltre con il "+1" arrivano a 200, mentre senza solo a 199, quindi ho lasciato l'ho lasciato, anche se non ho propriamente capito a cosa serva
         freq_idx[i] = int((dft_frame_mat.shape[1] + 1) * freq_vec[i] / sample_rate) # Indici delle mel-freq nelle righe della matrice del periodogram
 
     # Creo ora una matrice le cui righe siano i valori effettivi di ogni filtro
@@ -129,33 +129,17 @@ def main():
     # Overall energy on raw frame signal
     energy = np.log10(np.sum(frame_mat**2, axis=1))
 
-    #additional features
-    #delta coefficient
-    delta_features_mat = np.zeros(dct_mat.shape)
-
-    m1 = dct_mat[:, 2:12] - dct_mat[:, 0:10]
-    m2 = 2 * (dct_mat[:, 4:12] - dct_mat[:, 0:8])
-    delta_features_mat[:, 1:11] = m1
-    delta_features_mat[:, 2:10] += m2
-    delta_features_mat[:, 0] = dct_mat[:, 1] + dct_mat[:, 2]
-    delta_features_mat[:, 1] += dct_mat[:, 3]
-    delta_features_mat[:, 10] += (-1) * dct_mat[:, 8]
-    delta_features_mat[:, 11] = (-1) * dct_mat[:, 10] - dct_mat[:, 9]
-    delta_features_mat = delta_features_mat/10
+    # Additional features
+    # Delta coefficient
 
     # Prova della funzione già pronta (risultati diversi)
-    prova_delta = delta(dct_mat, 2)
+    # Prova_delta = delta(dct_mat, 2)
 
-
-    # extraction_dinamics è la funzione esterna che ci fa le riche di codice sopra
-    delta_feat2 = extraction_dinamic_opt(dct_mat)
-    #a è per controllare che la funzione ritorni lo stesso risultato di come avevamo fatto sopra
-    a = delta_features_mat - delta_feat2
-
-    delta_delta_mat = extraction_dinamic(delta_feat2)
+    delta_mat = extraction_dinamic_opt(dct_mat)
+    delta_delta_mat = extraction_dinamic_opt(delta_mat)
 
     # Compute energies
-    delta_energy = np.log10(np.sum(delta_features_mat**2, axis=1))
+    delta_energy = np.log10(np.sum(delta_mat**2, axis=1))
     delta2_energy = np.log10(np.sum(delta_delta_mat**2, axis=1))
     z = 1  # Linea di debugging
 
