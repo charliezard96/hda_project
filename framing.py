@@ -4,7 +4,7 @@ from scipy.signal import periodogram as comp_per
 from scipy.fftpack import dct
 import numpy as np
 import math
-import matplotlib.pyplot as plt # Visualization library
+import matplotlib.pyplot as plt     # Visualization library
 # libreria esterna per i delta, va installata manualmente prima di usarla
 #from python_speech_features.base import delta
 
