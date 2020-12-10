@@ -6,7 +6,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt # Visualization library
 # libreria esterna per i delta, va installata manualmente prima di usarla
-from python_speech_features.base import delta
+#from python_speech_features.base import delta
 
 
 def extraction_dinamic(input):
@@ -24,9 +24,10 @@ def extraction_dinamic(input):
     features_mat = features_mat / 10
     return (features_mat)
 
-def extraction_dinamic_opt(input):
-    dim = input.shape[1]
-    features_mat = np.pad(input, ((0, 0), (2, 2)))
+
+def extraction_dinamic_opt(mat):
+    dim = mat.shape[1]
+    features_mat = np.pad(mat, ((0, 0), (2, 2)))
     features_mat = features_mat[:, 3:dim + 3] - features_mat[:, 1:dim + 1] \
                    + 2 * (features_mat[:, 4:dim + 4] - features_mat[:, 0:dim])
     features_mat = features_mat / 10
@@ -133,7 +134,7 @@ def main():
     # Delta coefficient
 
     # Prova della funzione già pronta (risultati diversi)
-    prova_delta = delta(dct_mat, 2)
+    # prova_delta = delta(dct_mat, 2)
 
     delta_mat = extraction_dinamic_opt(dct_mat)
     delta_delta_mat = extraction_dinamic_opt(delta_mat)
