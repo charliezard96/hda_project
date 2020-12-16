@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from os import listdir
 import time
+import framing
 
 
 
@@ -11,16 +12,17 @@ def main():
 
     data_dir = "dataset\\speech_commands_v0.02"
     all_dir = np.array(listdir(data_dir))
-    data = pd.DataFrame(columns=['filename', 'data', 'label'])
+    data = pd.DataFrame(columns=['filename', 'data', 'fs', 'label'])
 
     all_time = time.time()
     for dir in all_dir[:-1]:
         all_files = np.array(listdir(data_dir+"\\"+dir))
         start_time = time.time()
-        data_temp = pd.DataFrame(columns=['filename', 'data', 'label'])
+        data_temp = pd.DataFrame(columns=['filename', 'data', 'fs', 'label'])
+        fs = wave.open(data_dir + "\\" + dir + "\\" + all_files[0], 'rb').getframerate()
         for f in all_files:
             src = read(data_dir+"\\"+dir+"\\"+f)
-            temp = pd.DataFrame([[dir+"/"+f, np.array(src[1], dtype=float), dir]], columns=['filename', 'data', 'label'])
+            temp = pd.DataFrame([[dir+"/"+f, np.array(src[1], dtype=float), fs, dir]], columns=['filename', 'data', 'fs', 'label'])
             data_temp = data_temp.append(temp, ignore_index=True)
         data = pd.concat([data, data_temp], ignore_index=False)
         print(dir + ": --- %s seconds ---" % (time.time() - start_time))
