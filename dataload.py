@@ -33,9 +33,10 @@ def main():
     print(": --- %s seconds ---" % (time.time() - all_time))
     prova = data['data'][0]
 
-    data.to_csv("dataframe.csv")
+    data.to_hdf('dataframe.h5', key='df', mode='w')
+    data.to_pickle("./dataframe.pkl")
     all_time = time.time()
-    data = pd.read_csv("dataframe.csv")
+    data = pd.read_hdf('dataframe.h5', key='df')
     prova = data['data'][0]
     print(": --- %s seconds ---" % (time.time() - all_time))
 
