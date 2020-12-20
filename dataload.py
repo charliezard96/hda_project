@@ -5,36 +5,65 @@ import pandas as pd
 from os import listdir
 import time
 import framing
-
+import math
 
 
 def main():
 
     data_dir = "dataset\\speech_commands_v0.02"
+    test = "dataset\\testing_list.txt"
+    val = "dataset\\validation_list.txt"
     all_dir = np.array(listdir(data_dir))
+    test_set = np.loadtxt(test, dtype=str)
+    val_set = np.loadtxt(val, dtype=str)
+
     fs = 16000      # Sampling frequency (better time performances than extract it from the file)
     dur = 0.025     # Frame duration in ms
     step = 0.010    # Frame step size in ms
     all_time = time.time()      # Used to evaluate time performances
-    data = pd.DataFrame(columns=['filename', 'data', 'label'])
-    data.to_hdf('dataframe.h5', key='df', mode='w')     # Initialize dataframe file
+    data_train = pd.DataFrame(columns=['filename', 'data', 'label'])
+    data_val = pd.DataFrame(columns=['filename', 'data', 'label'])
+    data_test = pd.DataFrame(columns=['filename', 'data', 'label'])
+    #data.to_hdf('dataframe.h5', key='df', mode='w')
 
     for d in all_dir[:-1]:
         all_files = np.array(listdir(data_dir+"\\"+d))
         start_time = time.time()        # Used to evaluate time performances
-        data_temp = pd.DataFrame(columns=['filename', 'data', 'label'])
+        data_temp = pd.DataFrame(columns=['filename', 'data', 'label'])     # Initialize sub-dataframe
         for f in all_files:
-            src = read(data_dir+"\\"+d+"\\"+f)      # Read the file
-            src = framing.framing(np.array(src[1], dtype=int), fs, dur, step)       # Frame extraction
-            temp = pd.DataFrame([[d+"/"+f, src, d]], columns=['filename', 'data', 'label'])     # Insert data in the sub-dataframe
-            data_temp = data_temp.append(temp, ignore_index=True)       # Expand sub-dataframe
-        data_temp.to_hdf('dataframe.h5', key='df', mode='a')        # Update dataset file
-        #data = pd.concat([data, data_temp], ignore_index=False)
+            # Read and process the sample
+            src = read(data_dir+"\\"+d+"\\"+f)
+            src = framing.framing(np.array(src[1], dtype=int), fs, dur, step)
+            # Update sub-dataframe
+            temp = pd.DataFrame([[d+"/"+f, src, d]], columns=['filename', 'data', 'label'])
+            data_temp = data_temp.append(temp, ignore_index=True)
+        # Extract test samples
+        idx_t = data_temp.index[np.in1d(data_temp['filename'], test_set)]
+        data_temp_t = data_temp.iloc[idx_t]
+        # Extract test samples
+        idx_v = data_temp.index[np.in1d(data_temp['filename'], val_set)]
+        data_temp_v = data_temp.iloc[idx_v]
+        # Remove test and validation set
+        data_temp = data_temp.drop(idx_t)
+        data_temp = data_temp.drop(idx_v)
+
+        #data_temp.to_hdf('dataframe.h5', key='df', mode='a', format='table', append=True)
+        # Update all the sets
+        data_test = pd.concat([data_test, data_temp_t], ignore_index=False)
+        data_val = pd.concat([data_val, data_temp_v], ignore_index=False)
+        data_train = pd.concat([data_train, data_temp], ignore_index=False)
         print(d + ": --- %s seconds ---" % (time.time() - start_time))
 
+    # Save all the sets
+    data_test.to_hdf('dTest.h5', key='df', mode='w')
+    data_val.to_hdf('dVal.h5', key='df', mode='w')
+    data_train.head(math.floor(data_train.shape[0]/2)).to_hdf('dTrain1.h5', key='df', mode='w')
+    data_train.tail(math.ceil(data_train.shape[0]/2)).to_hdf('dTrain2.h5', key='df', mode='w')
     print("Dataset file creation: --- %s seconds ---" % (time.time() - all_time))
     all_time = time.time()
-    data = pd.read_hdf('dataframe.h5', key='df')
+    # Reload train set
+    data_train = pd.read_hdf('dTrain1.h5', key='df')
+    data_train = pd.concat([data_train, pd.read_hdf('dTrain2.h5', key='df')], ignore_index=False)
     print("Load dataset file: --- %s seconds ---" % (time.time() - all_time))
 
 
