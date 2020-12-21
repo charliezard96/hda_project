@@ -46,24 +46,25 @@ def main():
         # Remove test and validation set
         data_temp = data_temp.drop(idx_t)
         data_temp = data_temp.drop(idx_v)
+        data_temp.to_hdf('dTrain\\'+d+'.h5', key='df', mode='w')
 
         #data_temp.to_hdf('dataframe.h5', key='df', mode='a', format='table', append=True)
         # Update all the sets
         data_test = pd.concat([data_test, data_temp_t], ignore_index=False)
         data_val = pd.concat([data_val, data_temp_v], ignore_index=False)
-        data_train = pd.concat([data_train, data_temp], ignore_index=False)
+        #data_train = pd.concat([data_train, data_temp], ignore_index=False)
         print(d + ": --- %s seconds ---" % (time.time() - start_time))
 
     # Save all the sets
     data_test.to_hdf('dTest.h5', key='df', mode='w')
     data_val.to_hdf('dVal.h5', key='df', mode='w')
-    data_train.head(math.floor(data_train.shape[0]/2)).to_hdf('dTrain1.h5', key='df', mode='w')
-    data_train.tail(math.ceil(data_train.shape[0]/2)).to_hdf('dTrain2.h5', key='df', mode='w')
+    #data_train.head(math.floor(data_train.shape[0]/2)).to_hdf('dTrain1.h5', key='df', mode='w')
+    #data_train.tail(math.ceil(data_train.shape[0]/2)).to_hdf('dTrain2.h5', key='df', mode='w')
     print("Dataset file creation: --- %s seconds ---" % (time.time() - all_time))
     all_time = time.time()
     # Reload train set
-    data_train = pd.read_hdf('dTrain1.h5', key='df')
-    data_train = pd.concat([data_train, pd.read_hdf('dTrain2.h5', key='df')], ignore_index=False)
+    #data_train = pd.read_hdf('dTrain1.h5', key='df')
+    #data_train = pd.concat([data_train, pd.read_hdf('dTrain2.h5', key='df')], ignore_index=False)
     print("Load dataset file: --- %s seconds ---" % (time.time() - all_time))
 
 
