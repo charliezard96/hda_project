@@ -20,11 +20,14 @@ def main():
     fs = 16000      # Sampling frequency (better time performances than extract it from the file)
     dur = 0.025     # Frame duration in ms
     step = 0.010    # Frame step size in ms
+    n_mel = 26
+    f_min = 300
     all_time = time.time()      # Used to evaluate time performances
-    data_train = pd.DataFrame(columns=['filename', 'data', 'label'])
+    #data_train = pd.DataFrame(columns=['filename', 'data', 'label'])
     data_val = pd.DataFrame(columns=['filename', 'data', 'label'])
     data_test = pd.DataFrame(columns=['filename', 'data', 'label'])
     #data.to_hdf('dataframe.h5', key='df', mode='w')
+    mel_mat = framing.getMellFilterbanks(fs*dur, fs/2, f_min, n_mel)
 
     for d in all_dir[:-1]:
         all_files = np.array(listdir(data_dir+"\\"+d))
@@ -33,7 +36,7 @@ def main():
         for f in all_files:
             # Read and process the sample
             src = read(data_dir+"\\"+d+"\\"+f)
-            src = framing.framing(np.array(src[1], dtype=int), fs, dur, step)
+            src = framing.fullFeatExtraction(np.array(src[1], dtype=float), mel_mat, fs, dur, step)
             # Update sub-dataframe
             temp = pd.DataFrame([[d+"/"+f, src, d]], columns=['filename', 'data', 'label'])
             data_temp = data_temp.append(temp, ignore_index=True)
@@ -66,7 +69,6 @@ def main():
     #data_train = pd.read_hdf('dTrain1.h5', key='df')
     #data_train = pd.concat([data_train, pd.read_hdf('dTrain2.h5', key='df')], ignore_index=False)
     print("Load dataset file: --- %s seconds ---" % (time.time() - all_time))
-
 
     z = 1  # Linea di debugging
 

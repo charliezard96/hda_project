@@ -9,30 +9,6 @@ import matplotlib.pyplot as plt     # Visualization library
 #from python_speech_features.base import delta
 
 
-def extraction_dinamic(input):
-    dim = input.shape[1]
-    features_mat = np.zeros(input.shape)
-
-    m1 = input[:, 2:dim] - input[:, 0:dim-2]
-    m2 = 2 * (input[:, 4:dim] - input[:, 0:dim-4])
-    features_mat[:, 1:dim-1] = m1
-    features_mat[:, 2:dim-2] += m2
-    features_mat[:, 0] = input[:, 1] + input[:, 2]
-    features_mat[:, 1] += input[:, 3]
-    features_mat[:, dim-2] += (-1) * input[:, dim-4]
-    features_mat[:, dim-1] = (-1) * input[:, dim-2] - input[:, dim-3]
-    features_mat = features_mat / 10
-    return (features_mat)
-
-
-def extraction_dinamic_opt(mat):
-    dim = mat.shape[1]
-    features_mat = np.pad(mat, ((0, 0), (2, 2)))
-    features_mat = features_mat[:, 3:dim + 3] - features_mat[:, 1:dim + 1] \
-                   + 2 * (features_mat[:, 4:dim + 4] - features_mat[:, 0:dim])
-    features_mat = features_mat / 10
-    return features_mat
-
 def delta2Comp(mat):
     dim = mat.shape[0]
     features_mat = np.pad(mat, ((2, 2), (0, 0)))
@@ -48,7 +24,8 @@ def framing(src, Fs, dur, step):
     # Padding
     last_idx = int(math.ceil(tot_samples / f_step - 1) * f_step)
     pad = int(f_dur - len(src[last_idx:tot_samples]))
-    samples = np.pad(src, (0, pad))
+    samples = np.pad(src, (0, pad), constant_values=np.finfo(float).eps)
+    samples[samples==0] = np.finfo(float).eps
     # Frame extraction
     frame_mat = []
     for i in range(0, last_idx + 1, f_step):
@@ -73,7 +50,7 @@ def dftAndPer(src):
 
     return np.array(periodogram_mat)
 
-def getMellFilterbanks(n_fb, f_max, f_min, s_num):
+def getMellFilterbanks(s_num, f_max, f_min=300, n_fb=26):
 
     f_min_mel = 1125 * math.log(1 + f_min / 700)
     f_max_mel = 1125 * math.log(1 + f_max / 700)
@@ -97,6 +74,24 @@ def getMellFilterbanks(n_fb, f_max, f_min, s_num):
         mel_filterbanks[freq_idx[i + 1]:freq_idx[i + 2] + 1, i] = np.linspace(1.0, 0.0, num=down_step)
 
     return mel_filterbanks
+
+def fullFeatExtraction(src, mel, Fs, dur=0.025, step=0.010):
+    frame_mat = framing(src, Fs, dur, step)
+    periodogram_mat = dftAndPer(frame_mat)
+    log_mat = np.log(np.matmul(periodogram_mat, mel))
+    dct_mat = dct(log_mat)
+    dct_mat = dct_mat[:, 1:13]
+    delta_mat = delta2Comp(dct_mat)
+    delta_mat[delta_mat == 0] = np.finfo(float).eps
+    delta_delta_mat = delta2Comp(delta_mat)
+    delta_delta_mat[delta_delta_mat == 0] = np.finfo(float).eps
+    energy = np.reshape(np.log10(np.sum(frame_mat**2, axis=1)), (-1, 1))
+    delta_energy = np.reshape(np.log10(np.sum(delta_mat ** 2, axis=1)), (-1, 1))
+    delta2_energy = np.reshape(np.log10(np.sum(delta_delta_mat ** 2, axis=1)), (-1, 1))
+    feature_mat = np.concatenate([dct_mat, delta_mat, delta_delta_mat, energy, delta_energy, delta2_energy], axis=1)
+    return feature_mat
+
+
 
 def main():
 
@@ -126,7 +121,7 @@ def main():
     f_max = sample_rate / 2                 # Nyquist freq.
     f_min = 300                             # User defined min freq.
 
-    mel_filterbanks = getMellFilterbanks(n_fb, f_max, f_min, frame_mat.shape[1])
+    mel_filterbanks = getMellFilterbanks(frame_mat.shape[1], f_max, f_min, n_fb)
 
     # Ogni colonna è un filterbank, quindi basta un prodotto tra matrici pe applicare i filti e sommare i valori
     # Apply mel_filterbanks and compute log(E)
@@ -142,7 +137,7 @@ def main():
     dct_mat = dct_mat[:, 1:13]
 
     # Overall energy on raw frame signal
-    energy = np.log10(np.sum(frame_mat**2, axis=1))
+    energy = np.reshape(np.log10(np.sum(frame_mat**2, axis=1)), (-1, 1))
 
     # Additional features
     # Delta coefficient
@@ -151,11 +146,15 @@ def main():
     #prova_delta = delta(dct_mat, 2)
 
     delta_mat = delta2Comp(dct_mat)
-    delta_delta_mat = extraction_dinamic_opt(delta_mat)
+    delta_delta_mat = delta2Comp(delta_mat)
 
     # Compute energies
-    delta_energy = np.log10(np.sum(delta_mat**2, axis=1))
-    delta2_energy = np.log10(np.sum(delta_delta_mat**2, axis=1))
+    delta_energy = np.reshape(np.log10(np.sum(delta_mat**2, axis=1)), (-1, 1))
+    delta2_energy = np.reshape(np.log10(np.sum(delta_delta_mat**2, axis=1)), (-1, 1))
+
+    feature_mat = np.concatenate([dct_mat, delta_mat, delta_delta_mat, energy, delta_energy, delta2_energy], axis=1)
+
+    res = feature_mat - fullFeatExtraction(samples, mel_filterbanks, sample_rate, f_time_dur, f_time_step)
     z = 1  # Linea di debugging
 
 if __name__ == "__main__":
