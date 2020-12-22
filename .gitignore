@@ -7,3 +7,7 @@ gradlew
 gradlew.bat
 speech_commands_v0.02.tar.gz
 dataset/
+dTrain/
+__pycache__/
+dVal.h5
+dTest.h5
