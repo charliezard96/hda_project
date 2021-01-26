@@ -6,11 +6,18 @@ from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, Glo
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing import image
 from IPython.display import SVG
-from kt_utils import *
+#from kt_utils import *
 
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import imshow
 from IPython.display import Image
 
-%matplotlib inline
+#%matplotlib inline
 np.random.seed(1)
+
+def main():
+    np.random.seed(1)
+    z = 1  # Linea di debugging
+
+if __name__ == "__main__":
+    main()
