@@ -6,6 +6,7 @@ from os import listdir
 import time
 import framing
 import math
+import tables
 
 
 def main():
