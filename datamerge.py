@@ -3,7 +3,7 @@ import pandas as pd
 import time
 from os import listdir
 
-def main():
+def importDataset(data_dir = 'dTrain'):
     data_dir = 'dTrain'
     data_train = pd.DataFrame(columns=['filename', 'data', 'label'])
     all_time = time.time()
@@ -13,7 +13,4 @@ def main():
         print(f + ": --- %s seconds ---" % (time.time() - start_time))
     print("Load dataset file: --- %s seconds ---" % (time.time() - all_time))
 
-    z = 1  # Linea di debugging
-
-if __name__ == "__main__":
-    main()
+    return data_train
