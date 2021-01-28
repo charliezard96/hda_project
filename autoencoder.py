@@ -109,18 +109,21 @@ def main():
     aut_label_dic.update(dict(zip(un_labels, range(len(un_labels)+len(com_labels)))))
     label_dict.update(dict(zip(extra_labels, range(len(extra_labels)+len(com_labels)))))    # All-words classifications
 
-    sample = np.array([data.iloc[0].data])
-    #sample = sample[:, :, np.newaxis]
-
+    sample = data.iloc[0].data
     in_shape = (100, 12, 1)
-    model_test = AutoencoderModel((in_shape))
-    feat_out = model_test.get_layer(name='feature_out').output
-    in_x = model_test.input
+    samples = np.array(data.iloc[:]['data'])
+
+    autoenc = AutoencoderModel((in_shape))
+    print(autoenc.summary())
+    autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
+    autoenc.fit(x=samples, y=samples, epochs=4, batch_size=16)
+
+
+    feat_out = autoenc.get_layer(name='feature_out').output
+    in_x = autoenc.input
     encoder = Model(in_x, feat_out)
-    print(model_test.summary())
-    test_result = model_test.predict(sample)
-    test_shape = test_result.shape
-    feat_sample = encoder.predict(sample)
+    print(encoder.summary())
+
     z = 1  # Linea di debugging
 
 if __name__ == "__main__":
