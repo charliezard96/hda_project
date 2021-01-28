@@ -1,7 +1,8 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
-from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Linear
+from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Reshape, Conv2DTranspose, ReLU, Cropping2D
+
 from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing import image
@@ -58,25 +59,42 @@ def HappyModel(input_shape):
     return model
 
 
-def EncoderModel(input_shape):
+def AutoencoderModel(input_shape):
+    # Encoder
     X_input = Input(input_shape)
     X = ZeroPadding2D((4, 4))(X_input)
-    X = Conv2D(32, (40, 3), strides=(4, 1), name='conv0')(X)
+    X = Conv2D(16, (40, 3), strides=(4, 1), name='conv0')(X)
     X = Activation('relu')(X)
-    X = Conv2D(64, (4, 4), strides=(1, 1), name='conv1')(X)
+    X = Conv2D(32, (4, 4), strides=(1, 1), name='conv1')(X)
     X = Activation('relu')(X)
-    X = Conv2D(128, (3, 3), strides=(1, 1), name='conv2')(X)
-    X = Flatten()(X)
+    X = Conv2D(64, (3, 3), strides=(1, 1), name='conv2')(X)
+    X = Flatten(name='flatten')(X)
     X = Activation('relu')(X)
+    # Linear layers
+    X = Dense(256, activation='relu', name='linear0')(X)
+    X = Dense(16, activation=None, name='feature_out')(X)
 
 
+    X = ReLU()(X)
 
+    X = Dense(256, activation=None, name='linear1')(X)
+    X = Dense(13*13*64, activation=None, name='linearReshape')(X)
+    X = Reshape(target_shape=(13, 13, 64))(X)
+    X = Conv2DTranspose(32, (3, 3), strides=(1, 1), name='convT0')(X)
+    X = Activation('relu')(X)
+    X = Conv2DTranspose(16, (4, 4), strides=(1, 1), name='convT1')(X)
+    X = Activation('relu')(X)
+    X = Conv2DTranspose(1, (40, 3), strides=(4, 1), name='convT2')(X)
+    X = Cropping2D(cropping=(4, 4))(X)
+
+    model = Model(inputs=X_input, outputs=X, name='AutoencoderModel')
+    return model
 def main():
 
     train_dataset_raw = datamerge.importDataset()
     # Extract MFCC
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
-    data = train_dataset_raw.data.to_frame().applymap(lambda x: x[:, :12])
+    data = train_dataset_raw.data.to_frame().applymap(lambda x: np.expand_dims(x[:, :12], axis=2))
     data['label'] = train_dataset_raw.label.to_numpy()
 
     # Create label dictionaries (35 different known words)
@@ -91,7 +109,18 @@ def main():
     aut_label_dic.update(dict(zip(un_labels, range(len(un_labels)+len(com_labels)))))
     label_dict.update(dict(zip(extra_labels, range(len(extra_labels)+len(com_labels)))))    # All-words classifications
 
+    sample = np.array([data.iloc[0].data])
+    #sample = sample[:, :, np.newaxis]
 
+    in_shape = (100, 12, 1)
+    model_test = AutoencoderModel((in_shape))
+    feat_out = model_test.get_layer(name='feature_out').output
+    in_x = model_test.input
+    encoder = Model(in_x, feat_out)
+    print(model_test.summary())
+    test_result = model_test.predict(sample)
+    test_shape = test_result.shape
+    feat_sample = encoder.predict(sample)
     z = 1  # Linea di debugging
 
 if __name__ == "__main__":
