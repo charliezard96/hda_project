@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
-from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D
+from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Linear
 from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing import image
@@ -56,6 +56,19 @@ def HappyModel(input_shape):
     ### END CODE HERE ###
 
     return model
+
+
+def EncoderModel(input_shape):
+    X_input = Input(input_shape)
+    X = ZeroPadding2D((4, 4))(X_input)
+    X = Conv2D(32, (40, 3), strides=(4, 1), name='conv0')(X)
+    X = Activation('relu')(X)
+    X = Conv2D(64, (4, 4), strides=(1, 1), name='conv1')(X)
+    X = Activation('relu')(X)
+    X = Conv2D(128, (3, 3), strides=(1, 1), name='conv2')(X)
+    X = Flatten()(X)
+    X = Activation('relu')(X)
+
 
 
 def main():
