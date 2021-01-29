@@ -95,7 +95,7 @@ def main():
     train_dataset_raw = datamerge.importDataset()
     # Extract MFCC
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
-    data = train_dataset_raw.data.to_frame().applymap(lambda x: np.expand_dims(x[:, :12], axis=2))
+    data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
     data['label'] = train_dataset_raw.label.to_numpy()
 
     # Create label dictionaries (35 different known words)
@@ -112,7 +112,7 @@ def main():
 
     title = train_dataset_raw.iloc[40]
 
-    samples = np.array(data.data.to_numpy()[:])#.reshape((-1,100,12,1))
+    samples = np.array(data.data.tolist()).reshape((-1,100,12,1))
     sample = samples[0]
     in_shape = (100, 12, 1)
     #samples = np.empty((0, 100, 12, 1))
@@ -124,7 +124,7 @@ def main():
     autoenc = AutoencoderModel((in_shape))
     print(autoenc.summary())
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    #autoenc.fit(x=samples, y=samples, epochs=4, batch_size=16)
+    autoenc.fit(x=samples, y=samples, epochs=4, batch_size=16)
 
 
     feat_out = autoenc.get_layer(name='feature_out').output
