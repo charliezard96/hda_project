@@ -4,7 +4,7 @@ import time
 from os import listdir
 
 def importDataset(data_dir = 'dTrain'):
-    data_dir = 'dTrain'
+    data_dir = 'dTrain2'
     data_train = pd.DataFrame(columns=['filename', 'data', 'label'])
     all_time = time.time()
     for f in listdir(data_dir):

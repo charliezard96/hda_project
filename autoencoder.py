@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Reshape, Conv2DTranspose, ReLU, Cropping2D
@@ -109,14 +110,21 @@ def main():
     aut_label_dic.update(dict(zip(un_labels, range(len(un_labels)+len(com_labels)))))
     label_dict.update(dict(zip(extra_labels, range(len(extra_labels)+len(com_labels)))))    # All-words classifications
 
-    sample = data.iloc[0].data
+    title = train_dataset_raw.iloc[40]
+
+    samples = np.array(data.data.to_numpy()[:])#.reshape((-1,100,12,1))
+    sample = samples[0]
     in_shape = (100, 12, 1)
-    samples = np.array(data.iloc[:]['data'])
+    #samples = np.empty((0, 100, 12, 1))
+    #for i in range(len(data)):
+    #        temp = np.expand_dims(data.iloc[i].data, 0)
+    #       if (temp.shape==(1, 100, 12, 1)):
+    #            samples = np.append(samples, temp, 0)
 
     autoenc = AutoencoderModel((in_shape))
     print(autoenc.summary())
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    autoenc.fit(x=samples, y=samples, epochs=4, batch_size=16)
+    #autoenc.fit(x=samples, y=samples, epochs=4, batch_size=16)
 
 
     feat_out = autoenc.get_layer(name='feature_out').output

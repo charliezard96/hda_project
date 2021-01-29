@@ -14,6 +14,7 @@ def main():
     data_dir = "dataset\\speech_commands_v0.02"
     test = "dataset\\testing_list.txt"
     val = "dataset\\validation_list.txt"
+    dest_dir = 'dTrain2'
     all_dir = np.array(listdir(data_dir))
     test_set = np.loadtxt(test, dtype=str)
     val_set = np.loadtxt(val, dtype=str)
@@ -38,6 +39,8 @@ def main():
             # Read and process the sample
             src = read(data_dir+"\\"+d+"\\"+f)
             src = framing.fullFeatExtraction(np.array(src[1], dtype=float), mel_mat, fs, dur, step)
+            if src.shape[0] != 100:
+                continue
             # Update sub-dataframe
             temp = pd.DataFrame([[d+"/"+f, src, d]], columns=['filename', 'data', 'label'])
             data_temp = data_temp.append(temp, ignore_index=True)
@@ -50,7 +53,7 @@ def main():
         # Remove test and validation set
         data_temp = data_temp.drop(idx_t)
         data_temp = data_temp.drop(idx_v)
-        data_temp.to_hdf('dTrain\\'+d+'.h5', key='df', mode='w')
+        data_temp.to_hdf(dest_dir+'\\'+d+'.h5', key='df', mode='w')
 
         #data_temp.to_hdf('dataframe.h5', key='df', mode='a', format='table', append=True)
         # Update all the sets
