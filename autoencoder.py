@@ -65,29 +65,28 @@ def AutoencoderModel(input_shape):
     X_input = Input(input_shape)
     X = ZeroPadding2D((4, 4))(X_input)
     X = Conv2D(16, (40, 3), strides=(4, 1), name='conv0')(X)
-    X = Activation('relu')(X)
+    X = Activation('elu')(X)
     X = Conv2D(32, (4, 4), strides=(1, 1), name='conv1')(X)
-    X = Activation('relu')(X)
+    X = Activation('elu')(X)
     X = Conv2D(64, (3, 3), strides=(1, 1), name='conv2')(X)
     X = Flatten(name='flatten')(X)
-    X = Activation('relu')(X)
+    X = Activation('elu')(X)
     # Linear layers
-    X = Dense(512, activation='relu', name='linear0')(X)
+    X = Dense(512, activation='sigmoid', name='linear0')(X)
     X = Dense(64, activation=None, name='feature_out')(X)
 
 
-    X = ReLU()(X)
-
-    X = Dense(512, activation=None, name='linear1')(X)
+    # Decoder
+    X = Activation('sigmoid')(X)
+    X = Dense(512, activation='elu', name='linear1')(X)
     X = Dense(13*13*64, activation=None, name='linearReshape')(X)
     X = Reshape(target_shape=(13, 13, 64))(X)
     X = Conv2DTranspose(32, (3, 3), strides=(1, 1), name='convT0')(X)
-    X = Activation('relu')(X)
+    X = Activation('elu')(X)
     X = Conv2DTranspose(16, (4, 4), strides=(1, 1), name='convT1')(X)
-    X = Activation('relu')(X)
-    X = Conv2DTranspose(1, (40, 3), strides=(4, 1), name='convT2')(X)
+    X = Activation('elu')(X)
+    X = Conv2DTranspose(1, (40, 3), strides=(4, 1), activation='sigmoid', name='convT2')(X)
     X = Cropping2D(cropping=(4, 4))(X)
-
     model = Model(inputs=X_input, outputs=X, name='AutoencoderModel')
     return model
 def main():
@@ -122,11 +121,11 @@ def main():
     #            samples = np.append(samples, temp, 0)
 
     autoenc = AutoencoderModel((in_shape))
-    autoenc = tf.keras.models.load_model('autoenc_first_train.h5')
+    #autoenc = tf.keras.models.load_model('autoenc_first_train_gpu.h5')
     print(autoenc.summary())
-    autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
+    autoenc.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
-    autoenc.save('autoenc_first_train.h5')
+    autoenc.save('autoenc_first_train_gpu.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
