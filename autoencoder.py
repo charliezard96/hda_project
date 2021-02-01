@@ -72,13 +72,13 @@ def AutoencoderModel(input_shape):
     X = Flatten(name='flatten')(X)
     X = Activation('relu')(X)
     # Linear layers
-    X = Dense(256, activation='relu', name='linear0')(X)
-    X = Dense(16, activation=None, name='feature_out')(X)
+    X = Dense(512, activation='relu', name='linear0')(X)
+    X = Dense(64, activation=None, name='feature_out')(X)
 
 
     X = ReLU()(X)
 
-    X = Dense(256, activation=None, name='linear1')(X)
+    X = Dense(512, activation=None, name='linear1')(X)
     X = Dense(13*13*64, activation=None, name='linearReshape')(X)
     X = Reshape(target_shape=(13, 13, 64))(X)
     X = Conv2DTranspose(32, (3, 3), strides=(1, 1), name='convT0')(X)
@@ -112,7 +112,7 @@ def main():
 
     title = train_dataset_raw.iloc[40]
 
-    samples = np.array(data.data.tolist()).reshape((-1,100,12,1))
+    samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
     sample = samples[0]
     in_shape = (100, 12, 1)
     #samples = np.empty((0, 100, 12, 1))
@@ -122,10 +122,11 @@ def main():
     #            samples = np.append(samples, temp, 0)
 
     autoenc = AutoencoderModel((in_shape))
+    autoenc = tf.keras.models.load_model('autoenc_first_train.h5')
     print(autoenc.summary())
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    autoenc.fit(x=samples, y=samples, epochs=4, batch_size=16)
-
+    autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
+    autoenc.save('autoenc_first_train.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
