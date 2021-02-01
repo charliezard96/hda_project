@@ -12,3 +12,4 @@ dTrain2/
 __pycache__/
 dVal.h5
 dTest.h5
+autoencoders_models/
