@@ -17,74 +17,36 @@ import pandas as pd
 
 #%matplotlib inline
 
-# FUNCTION: OUR MODEL
-
-def HappyModel(input_shape):
-    """
-    Implementation of the HappyModel.
-
-    Arguments:
-    input_shape -- shape of the images of the dataset
-
-    Returns:
-    model -- a Model() instance in Keras
-    """
-
-    ### START CODE HERE ###
-    # Feel free to use the suggested outline in the text above to get started, and run through the whole
-    # exercise (including the later portions of this notebook) once. The come back also try out other
-    # network architectures as well.
-    # Define the input placeholder as a tensor with shape input_shape. Think of this as your input image!
-    X_input = Input(input_shape)
-
-    # Zero-Padding: pads the border of X_input with zeroes
-    X = ZeroPadding2D((3, 3))(X_input)
-
-    # CONV -> Batch Normalization -> ReLU Block applied to X
-    X = Conv2D(32, (7, 7), strides=(1, 1), name='conv0')(X)
-    X = BatchNormalization(axis=3, name='bn0')(X)
-    X = Activation('relu')(X)
-
-    # MAXPOOL
-    X = MaxPooling2D((2, 2), name='max_pool')(X)
-
-    # FLATTEN X (means convert it to a vector) + FULLYCONNECTED
-    X = Flatten()(X)
-    X = Dense(1, activation='sigmoid', name='fc')(X)
-
-    # Create model. This creates your Keras model instance, you'll use this instance to train/test the model.
-    model = Model(inputs=X_input, outputs=X, name='HappyModel')
-
-    ### END CODE HERE ###
-
-    return model
 
 
 def AutoencoderModel(input_shape):
     # Encoder
     X_input = Input(input_shape)
-    X = ZeroPadding2D((4, 4))(X_input)
-    X = Conv2D(16, (40, 3), strides=(4, 1), activation='relu', name='conv0')(X)
+    #X = ZeroPadding2D((4, 4))(X_input)
+    X = Conv2D(16, (3, 3), strides=(1, 1), activation='relu', name='conv0')(X_input)
 
-    X = Conv2D(32, (4, 4), strides=(1, 1), activation='relu', name='conv1')(X)
+    X = Conv2D(32, (3, 3), strides=(1, 1), activation='relu', name='conv1')(X)
 
     X = Conv2D(64, (3, 3), strides=(1, 1), activation='relu', name='conv2')(X)
+
+    X = Conv2D(64, (3, 3), strides=(1, 1), activation='relu', name='conv3')(X)
     X = Flatten(name='flatten')(X)
 
     # Linear layers
-    X = Dense(512, activation='relu', name='linear0')(X)
-    X = Dense(64, activation=None, name='feature_out')(X)
+    X = Dense(1024, activation='relu', name='linear0')(X)
+    X = Dense(128, activation=None, name='feature_out')(X)
 
 
     # Decoder
     X = Activation('relu')(X)
-    X = Dense(512, activation='relu', name='linear1')(X)
-    X = Dense(13*13*64, activation=None, name='linearReshape')(X)
-    X = Reshape(target_shape=(13, 13, 64))(X)
-    X = Conv2DTranspose(32, (3, 3), strides=(1, 1), activation='relu', name='convT0')(X)
-    X = Conv2DTranspose(16, (4, 4), strides=(1, 1), activation='relu', name='convT1')(X)
-    X = Conv2DTranspose(1, (40, 3), strides=(4, 1), activation='sigmoid', name='convT2')(X)
-    X = Cropping2D(cropping=(4, 4))(X)
+    X = Dense(1024, activation='relu', name='linear1')(X)
+    X = Dense(92*4*64, activation=None, name='linearReshape')(X)
+    X = Reshape(target_shape=(92, 4, 64))(X)
+    X = Conv2DTranspose(64, (3, 3), strides=(1, 1), activation='relu', name='convT0')(X)
+    X = Conv2DTranspose(32, (3, 3), strides=(1, 1), activation='relu', name='convT1')(X)
+    X = Conv2DTranspose(16, (3, 3), strides=(1, 1), activation='relu', name='convT2')(X)
+    X = Conv2DTranspose(1, (3, 3), strides=(1, 1), activation='sigmoid', name='convT_out')(X)
+    #X = Cropping2D(cropping=(4, 4))(X)
     model = Model(inputs=X_input, outputs=X, name='AutoencoderModel')
     return model
 def main():
@@ -122,8 +84,8 @@ def main():
     #autoenc = tf.keras.models.load_model('autoenc_first_train_gpu.h5')
     print(autoenc.summary())
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
-    autoenc.save('autoenc_first_train_gpu.h5')
+    #autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
+    #autoenc.save('autoenc_first_train_gpu.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
