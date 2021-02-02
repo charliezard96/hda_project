@@ -18,35 +18,42 @@ import pandas as pd
 #%matplotlib inline
 
 
-
 def AutoencoderModel(input_shape):
     # Encoder
     X_input = Input(input_shape)
-    #X = ZeroPadding2D((4, 4))(X_input)
-    X = Conv2D(16, (3, 3), strides=(1, 1), activation='relu', name='conv0')(X_input)
 
-    X = Conv2D(32, (3, 3), strides=(1, 1), activation='relu', name='conv1')(X)
+    X = Conv2D(16, (3, 3), strides=(1, 1), activation='elu', name='conv0', padding='same')(X_input)
+    # X = MaxPooling2D(pool_size=(3, 3), padding='same')(X)
 
-    X = Conv2D(64, (3, 3), strides=(1, 1), activation='relu', name='conv2')(X)
+    X = Conv2D(32, (3, 3), strides=(1, 1), activation='elu', name='conv1', padding='same')(X)
+    X = MaxPooling2D(pool_size=(2, 1), padding='same')(X)
 
-    X = Conv2D(64, (3, 3), strides=(1, 1), activation='relu', name='conv3')(X)
+    X = Conv2D(64, (3, 3), strides=(1, 1), activation='elu', name='conv2', padding='same')(X)
+    X = MaxPooling2D(pool_size=(2, 1), padding='same')(X)
+
+    X = Conv2D(64, (3, 3), strides=(1, 1), activation='elu', name='conv3', padding='same')(X)
+    # X = MaxPooling2D(pool_size=(2, 1), padding='same')(X)
+
     X = Flatten(name='flatten')(X)
 
     # Linear layers
-    X = Dense(1024, activation='relu', name='linear0')(X)
+    X = Dense(1024, activation='elu', name='linear0')(X)
     X = Dense(128, activation=None, name='feature_out')(X)
 
-
     # Decoder
-    X = Activation('relu')(X)
-    X = Dense(1024, activation='relu', name='linear1')(X)
-    X = Dense(92*4*64, activation=None, name='linearReshape')(X)
-    X = Reshape(target_shape=(92, 4, 64))(X)
-    X = Conv2DTranspose(64, (3, 3), strides=(1, 1), activation='relu', name='convT0')(X)
-    X = Conv2DTranspose(32, (3, 3), strides=(1, 1), activation='relu', name='convT1')(X)
-    X = Conv2DTranspose(16, (3, 3), strides=(1, 1), activation='relu', name='convT2')(X)
-    X = Conv2DTranspose(1, (3, 3), strides=(1, 1), activation='sigmoid', name='convT_out')(X)
-    #X = Cropping2D(cropping=(4, 4))(X)
+    X = Activation('elu')(X)
+    X = Dense(1024, activation='elu', name='linear1')(X)
+    X = Dense(25 * 12 * 64, activation=None, name='linearReshape')(X)
+    X = Reshape(target_shape=(25, 12, 64))(X)
+
+    X = Conv2DTranspose(64, (3, 3), activation='elu', strides=(1, 1), name='convT0', padding='same')(X)
+
+    X = Conv2DTranspose(32, (3, 3), activation='elu', strides=(2, 1), name='convT1', padding='same')(X)
+
+    X = Conv2DTranspose(16, (3, 3), activation='elu', strides=(2, 1), name='convT2', padding='same')(X)
+
+    X = Conv2DTranspose(1, (3, 3), activation=None, strides=(1, 1), name='convT_out', padding='same')(X)
+
     model = Model(inputs=X_input, outputs=X, name='AutoencoderModel')
     return model
 def main():
@@ -84,8 +91,8 @@ def main():
     #autoenc = tf.keras.models.load_model('autoenc_first_train_gpu.h5')
     print(autoenc.summary())
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    #autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
-    #autoenc.save('autoenc_first_train_gpu.h5')
+    autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
+    autoenc.save('autoenc_first_train_gpu_maxpool.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
