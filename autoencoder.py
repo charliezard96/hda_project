@@ -23,7 +23,7 @@ def AutoencoderModel(input_shape):
     X_input = Input(input_shape)
 
     X = Conv2D(16, (3, 3), strides=(1, 1), activation='elu', name='conv0', padding='same')(X_input)
-    # X = MaxPooling2D(pool_size=(3, 3), padding='same')(X)
+    #  X = MaxPooling2D(pool_size=(3, 3), padding='same')(X)
 
     X = Conv2D(32, (3, 3), strides=(1, 1), activation='elu', name='conv1', padding='same')(X)
     X = MaxPooling2D(pool_size=(2, 1), padding='same')(X)
