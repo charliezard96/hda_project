@@ -38,11 +38,13 @@ def AutoencoderModel(input_shape):
 
     # Linear layers
     X = Dense(1024, activation='elu', name='linear0')(X)
-    X = Dense(128, activation=None, name='feature_out')(X)
+    X = Dense(512, activation='elu', name='linear1')(X)
+    X = Dense(256, activation=None, name='feature_out')(X)
 
     # Decoder
     X = Activation('elu')(X)
-    X = Dense(1024, activation='elu', name='linear1')(X)
+    X = Dense(512, activation='elu', name='invLinear1')(X)
+    X = Dense(1024, activation='elu', name='inLinear0')(X)
     X = Dense(25 * 12 * 64, activation=None, name='linearReshape')(X)
     X = Reshape(target_shape=(25, 12, 64))(X)
 
@@ -71,8 +73,10 @@ def main():
     #autoenc = tf.keras.models.load_model('autoenc_first_train_gpu.h5')
     print(autoenc.summary())
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
-    autoenc.save('autoenc_first_train_gpu_maxpool.h5')
+    history = autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
+    plt.plot(history.history['loss'])
+    plt.show()
+    #autoenc.save('autoenc_first_train_gpu_maxpool.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
