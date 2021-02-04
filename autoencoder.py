@@ -63,29 +63,9 @@ def main():
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
     data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
     data['label'] = train_dataset_raw.label.to_numpy()
-
-    # Create label dictionaries (35 different known words)
-    un_labels = np.unique(data.label.to_numpy())    # All labels
-    com_labels = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go']    # Command labels
-    extra_labels = ['unknown word', 'silence']  # Special labels
-    label_mask = np.isin(un_labels, com_labels)
-    un_labels = un_labels[~label_mask]  # Non-command labels
-
-    label_dict = dict(zip(com_labels, range(len(com_labels))))  # Commands oriented classification
-    aut_label_dic = label_dict.copy()
-    aut_label_dic.update(dict(zip(un_labels, range(len(un_labels)+len(com_labels)))))
-    label_dict.update(dict(zip(extra_labels, range(len(extra_labels)+len(com_labels)))))    # All-words classifications
-
-    title = train_dataset_raw.iloc[40]
-
     samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
     sample = samples[0]
     in_shape = (100, 12, 1)
-    #samples = np.empty((0, 100, 12, 1))
-    #for i in range(len(data)):
-    #        temp = np.expand_dims(data.iloc[i].data, 0)
-    #       if (temp.shape==(1, 100, 12, 1)):
-    #            samples = np.append(samples, temp, 0)
 
     autoenc = AutoencoderModel((in_shape))
     #autoenc = tf.keras.models.load_model('autoenc_first_train_gpu.h5')
