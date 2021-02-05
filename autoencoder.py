@@ -70,17 +70,19 @@ def main():
     in_shape = (100, 12, 1)
 
     autoenc = AutoencoderModel((in_shape))
-    #autoenc = tf.keras.models.load_model('autoenc_first_train_gpu.h5')
+    autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
     print(autoenc.summary())
+    '''
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    history = autoenc.fit(x=samples, y=samples, epochs=50, batch_size=256)
+    history = autoenc.fit(x=samples, y=samples, epochs=500, batch_size=256)
     plt.plot(history.history['loss'])
     plt.show()
-    #autoenc.save('autoenc_first_train_gpu_maxpool.h5')
-
+    autoenc.save('autoenc_gpu_500.h5')
+    '''
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
     encoder = Model(in_x, feat_out)
+    encoder.save('encoder_gpu_500.h5')
     print(encoder.summary())
 
     z = 1  # Linea di debugging
