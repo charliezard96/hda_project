@@ -16,7 +16,14 @@ import datamerge
 import pandas as pd
 
 #%matplotlib inline
+def add_noise(src):
+    src_shape = len(src)
+    mean = 0
+    var = 0.1
+    sigma = var ** 0.5
+    noise = np.random.normal(0, sigma, src_shape)
 
+    return src + noise
 
 def AutoencoderModel(input_shape):
     # Encoder
@@ -60,25 +67,29 @@ def AutoencoderModel(input_shape):
     return model
 def main():
 
-    train_dataset_raw = datamerge.importDataset()
+    #train_dataset_raw = datamerge.importDataset()
+    train_dataset_raw = pd.read_hdf('dVal.h5')
     # Extract MFCC
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
     data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
-    data['label'] = train_dataset_raw.label.to_numpy()
+    data['label'] = train_dataset_raw.label
+    data['noisy'] = data.data.to_frame().applymap(add_noise)
     samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
+    noisy_samples = np.array(data.noisy.tolist()).reshape((-1, 100, 12, 1))
     sample = samples[0]
     in_shape = (100, 12, 1)
 
     autoenc = AutoencoderModel((in_shape))
-    autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
+    #autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
     print(autoenc.summary())
     '''
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    history = autoenc.fit(x=samples, y=samples, epochs=500, batch_size=256)
+    history = autoenc.fit(x=noisy_samples, y=samples, epochs=5, batch_size=256)
     plt.plot(history.history['loss'])
     plt.show()
-    autoenc.save('autoenc_gpu_500.h5')
     '''
+    #autoenc.save('autoenc_gpu_500.h5')
+
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
     encoder = Model(in_x, feat_out)

@@ -28,8 +28,8 @@ def Classifier(input_shape):
 
 def main():
 
-    train_dataset_raw = datamerge.importDataset()
-    #train_dataset_raw = pd.read_hdf('dVal.h5')
+    #train_dataset_raw = datamerge.importDataset()
+    train_dataset_raw = pd.read_hdf('dVal.h5')
     # Extract MFCC
     #train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
     data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
