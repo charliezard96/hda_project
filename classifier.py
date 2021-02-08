@@ -3,6 +3,7 @@ import h5py
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Reshape, Conv2DTranspose, ReLU, Cropping2D
+from sklearn import decomposition, model_selection, metrics, manifold
 
 from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
@@ -51,6 +52,8 @@ def main():
 
     true_labels = data['label'].to_frame().applymap(lambda x: label_dict.get(x, len(label_dict))).to_numpy()
 
+
+
     # model
 
     encoder = tf.keras.models.load_model('autoencoders_models\\encoder_gpu_500.h5')
@@ -62,9 +65,20 @@ def main():
     prediction = classification(features)
 
     predictor = tf.keras.Model(inputs=inp, outputs=prediction)
-    predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
-    history = predictor.fit(x=samples, y=true_labels, epochs=50, batch_size=256)
+    #predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
+    #history = predictor.fit(x=samples, y=true_labels, epochs=50, batch_size=256)
+    predicted_labels = predictor.predict(samples)
 
+
+    ### Confusion matrix
+    # Predicted labels
+    y_true = true_labels
+    y_pred = np.argmax(predicted_labels, axis=1)
+    # Evaluate confusion matrix
+    cm = metrics.confusion_matrix(y_true, y_pred)
+    # Show the confusion matrix
+    pd.DataFrame(cm)
+    print(pd.DataFrame(cm).head(64))
     z = 1  # Linea di debugging
 
 
