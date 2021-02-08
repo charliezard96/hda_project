@@ -16,10 +16,8 @@ import datamerge
 import pandas as pd
 
 #%matplotlib inline
-def add_noise(src):
+def add_noise(src, var = 0.1):
     src_shape = len(src)
-    mean = 0
-    var = 0.1
     sigma = var ** 0.5
     noise = np.random.normal(0, sigma, src_shape)
 

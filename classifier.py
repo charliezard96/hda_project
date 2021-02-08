@@ -56,17 +56,19 @@ def main():
 
     # model
 
-    encoder = tf.keras.models.load_model('autoencoders_models\\encoder_gpu_500.h5')
+    encoder = tf.keras.models.load_model('autoencoders_models\\encoder_gpu_150_noise.h5')
     print(encoder.summary())
     in_shape = (100, 12, 1)
     inp = tf.keras.Input(in_shape)
     features = encoder(inp)
-    classification = Classifier((None, 256))
+    n_features = 256
+    classification = Classifier(n_features)
     prediction = classification(features)
 
     predictor = tf.keras.Model(inputs=inp, outputs=prediction)
-    #predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
-    #history = predictor.fit(x=samples, y=true_labels, epochs=50, batch_size=256)
+    predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
+    history = predictor.fit(x=samples, y=true_labels, epochs=50, batch_size=256)
+    #predictor.save('autoencoders_models\\classifier_50_noise.h5')
     predicted_labels = predictor.predict(samples)
 
 
