@@ -67,8 +67,8 @@ def AutoencoderModel(input_shape):
     return model
 def main():
 
-    #train_dataset_raw = datamerge.importDataset()
-    train_dataset_raw = pd.read_hdf('dVal.h5')
+    train_dataset_raw = datamerge.importDataset()
+    #train_dataset_raw = pd.read_hdf('dVal.h5')
     # Extract MFCC
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
     data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
@@ -82,20 +82,21 @@ def main():
     autoenc = AutoencoderModel((in_shape))
     #autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
     print(autoenc.summary())
-    '''
+
     autoenc.compile(optimizer="adam", loss="mean_squared_error", metrics=["accuracy"])
-    history = autoenc.fit(x=noisy_samples, y=samples, epochs=5, batch_size=256)
+    history = autoenc.fit(x=noisy_samples, y=samples, epochs=150, batch_size=256)
     plt.plot(history.history['loss'])
     plt.show()
-    '''
-    #autoenc.save('autoenc_gpu_500.h5')
+
+    autoenc.save('autoencoders_models\\autoenc_gpu_500.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
+    '''
     encoder = Model(in_x, feat_out)
     encoder.save('encoder_gpu_500.h5')
     print(encoder.summary())
-
+    '''
     z = 1  # Linea di debugging
 
 if __name__ == "__main__":
