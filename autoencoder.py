@@ -63,6 +63,8 @@ def AutoencoderModel(input_shape):
 
     model = Model(inputs=X_input, outputs=X, name='AutoencoderModel')
     return model
+
+
 def main():
 
     train_dataset_raw = datamerge.importDataset()

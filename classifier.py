@@ -16,6 +16,18 @@ from IPython.display import Image
 import datamerge
 import pandas as pd
 
+def extractData(dataset_raw):
+    data = dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
+    data['label'] = dataset_raw.label.to_numpy()
+
+    # Create label dictionaries (35 different known words)
+    com_labels = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go']  # Command labels
+    label_dict = dict(zip(com_labels, range(len(com_labels))))  # Commands oriented classification
+
+    samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
+    true_labels = data['label'].to_frame().applymap(lambda x: label_dict.get(x, len(label_dict))).to_numpy()
+    return(data, samples, true_labels)
+
 def Classifier(input_shape):
 
     X_input = Input(input_shape)
@@ -29,29 +41,14 @@ def Classifier(input_shape):
 
 def main():
 
-    #train_dataset_raw = datamerge.importDataset()
-    train_dataset_raw = pd.read_hdf('dVal.h5')
-    # Extract MFCC
-    #train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
-    data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
-    data['label'] = train_dataset_raw.label.to_numpy()
-    samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
+    train_dataset_raw = datamerge.importDataset('dTrain2')
+    # train_dataset_raw = pd.read_hdf('dVal.h5')
+    val_dataset_raw = pd.read_hdf('dVal.h5')
 
-    # Create label dictionaries (35 different known words)
-    un_labels = np.unique(data.label.to_numpy())  # All labels
-    com_labels = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go']  # Command labels
-    extra_labels = ['other word']  # Special labels
-    label_mask = np.isin(un_labels, com_labels)
-    un_labels = un_labels[~label_mask]  # Non-command labels
-
-
-    label_dict = dict(zip(com_labels, range(len(com_labels))))  # Commands oriented classification
-    aut_label_dic = label_dict.copy()
-    aut_label_dic.update(dict(zip(un_labels, range(len(un_labels) + len(com_labels)))))
-    #label_dict.update(dict(zip(extra_labels, range(len(extra_labels) + len(com_labels)))))
-
-    true_labels = data['label'].to_frame().applymap(lambda x: label_dict.get(x, len(label_dict))).to_numpy()
-
+    print('### Train data processing ###')
+    data, samples, true_labels = extractData(train_dataset_raw)
+    print('### Validation data processing ###')
+    val_data, val_samples, val_labels = extractData(val_dataset_raw)
 
 
     # model
