@@ -13,3 +13,5 @@ __pycache__/
 dVal.h5
 dTest.h5
 autoencoders_models/
+history/
+graph/
