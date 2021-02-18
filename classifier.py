@@ -2,7 +2,8 @@ import numpy as np
 import h5py
 import tensorflow as tf
 from tensorflow.keras import layers
-from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Reshape, Conv2DTranspose, ReLU, Cropping2D
+from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, \
+    Reshape, Conv2DTranspose, ReLU, Cropping2D
 from sklearn import decomposition, model_selection, metrics, manifold
 
 from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
@@ -16,6 +17,7 @@ from IPython.display import Image
 import datamerge
 import pandas as pd
 
+
 def extractData(dataset_raw):
     data = dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
     data['label'] = dataset_raw.label.to_numpy()
@@ -26,10 +28,10 @@ def extractData(dataset_raw):
 
     samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
     true_labels = data['label'].to_frame().applymap(lambda x: label_dict.get(x, len(label_dict))).to_numpy()
-    return(data, samples, true_labels)
+    return (data, samples, true_labels)
+
 
 def Classifier(input_shape):
-
     X_input = Input(input_shape)
     # Linear layers
     X = Dense(1024, activation='relu', name='linear0')(X_input)
@@ -39,8 +41,8 @@ def Classifier(input_shape):
     model = Model(inputs=X_input, outputs=X, name='Classifier')
     return model
 
-def main():
 
+def main():
     train_dataset_raw = datamerge.importDataset('dTrain2')
     # train_dataset_raw = pd.read_hdf('dVal.h5')
     val_dataset_raw = pd.read_hdf('dVal.h5')
@@ -50,24 +52,35 @@ def main():
     print('### Validation data processing ###')
     val_data, val_samples, val_labels = extractData(val_dataset_raw)
 
-
     # model
-
+    print('Model initialization')
     encoder = tf.keras.models.load_model('autoencoders_models\\old\\encoder_gpu_150_noise.h5')
-    print(encoder.summary())
+    # print(encoder.summary())
     in_shape = (100, 12, 1)
-    inp = tf.keras.Input(in_shape)
-    features = encoder(inp)
+
+    # inp = tf.keras.Input(in_shape)
+    # features = encoder(inp)
+    print('forwarding through encoder the dataset')
+    features = encoder.predict(samples)
+    val_features = encoder.predict(val_samples)
+
     n_features = 256
-    classification = Classifier(n_features)
-    prediction = classification(features)
 
-    predictor = tf.keras.Model(inputs=inp, outputs=prediction)
-    predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
-    history = predictor.fit(x=samples, y=true_labels, epochs=50, batch_size=256)
+    #classification = Classifier(n_features)
+    #prediction = classification(features)
+
+    predictor = Classifier(n_features)
+    #predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
+    #history = predictor.fit(x=samples, y=true_labels, epochs=50, batch_size=256)
     #predictor.save('autoencoders_models\\classifier_50_noise.h5')
-    predicted_labels = predictor.predict(samples)
+    #predicted_labels = predictor.predict(samples)
 
+    predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    history = predictor.fit(x=features, y=true_labels, validation_data=(val_features, val_labels), epochs=100, batch_size=256)
+    predicted_labels = predictor.predict(features)
+
+    plt.plot(history.history['loss'])
+    plt.show()
 
     ### Confusion matrix
     # Predicted labels
