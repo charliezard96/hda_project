@@ -46,8 +46,8 @@ def Classifier2L(input_shape, l1=1024, l2=2048):
 
 def main():
 
-    train_dataset_raw = datamerge.importDataset('dTrain2')
-    #train_dataset_raw = pd.read_hdf('dVal.h5')
+    #train_dataset_raw = datamerge.importDataset('dTrain2')
+    train_dataset_raw = pd.read_hdf('dVal.h5')
 
     print('### Train data processing ###')
     data, samples, true_labels = extractData(train_dataset_raw)
@@ -62,11 +62,16 @@ def main():
 
     # Model
     print('Model initialization')
-    encoder = tf.keras.models.load_model('autoencoders_models\\old\\encoder_gpu_500.h5')
+    encoder = tf.keras.models.load_model('autoencoders_models\\encoder_gpu_500.h5')
     #print(encoder.summary())
     in_shape = (100, 12, 1)
-    inp = tf.keras.Input(in_shape)
-    features = encoder(inp)
+
+    #inp = tf.keras.Input(in_shape)     # Used in one model configuration
+    #features = encoder(inp)
+
+    features = encoder.predict(samples)
+    val_features = encoder.predict(val_samples)
+
     n_features = 256
 
     train_name = 'train_loss'
@@ -76,12 +81,14 @@ def main():
     for l2 in hyparams:
         for l1 in hyparams:
 
-            classification = Classifier2L(n_features, l1, l2)
-            prediction = classification(features)
+            #classification = Classifier2L(n_features, l1, l2)
+            #prediction = classification(features)
+            #predictor = tf.keras.Model(inputs=inp, outputs=prediction)
 
-            predictor = tf.keras.Model(inputs=inp, outputs=prediction)
+            predictor = Classifier2L(n_features, l1, l2)
+            #print(predictor.summary())
             predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-            history = predictor.fit(x=samples, y=true_labels, validation_data=(val_samples, val_labels),
+            history = predictor.fit(x=features, y=true_labels, validation_data=(val_features, val_labels),
                                 epochs=2, batch_size=256)
             with open("history\\history_"+train_name+"_"+str(l1)+"_"+str(l2)+".txt", "w") as output:
                 output.write(str(history.history['loss']))
