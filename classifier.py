@@ -53,14 +53,14 @@ def main():
     val_data, val_samples, val_labels = extractData(val_dataset_raw)
 
     # model
-    print('Model initialization')
+    print('###Model initialization###')
     encoder = tf.keras.models.load_model('autoencoders_models\\old\\encoder_gpu_150_noise.h5')
     # print(encoder.summary())
     in_shape = (100, 12, 1)
 
     # inp = tf.keras.Input(in_shape)
     # features = encoder(inp)
-    print('forwarding through encoder the dataset')
+    print('###forwarding through encoder the dataset###')
     features = encoder.predict(samples)
     val_features = encoder.predict(val_samples)
 

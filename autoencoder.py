@@ -15,7 +15,19 @@ from IPython.display import Image
 import datamerge
 import pandas as pd
 from tensorflow.keras.initializers import glorot_uniform
+def extractData_noisly(dataset_raw):
+    data = dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
+    data['label'] = dataset_raw.label.to_numpy()
+    data['noisy'] = data.data.to_frame().applymap(add_noise)
 
+    # Create label dictionaries (35 different known words)
+    com_labels = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go']  # Command labels
+    label_dict = dict(zip(com_labels, range(len(com_labels))))  # Commands oriented classification
+
+    samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
+    noisy_samples = np.array(data.noisy.tolist()).reshape((-1, 100, 12, 1))
+    true_labels = data['label'].to_frame().applymap(lambda x: label_dict.get(x, len(label_dict))).to_numpy()
+    return (data, samples, true_labels)
 
 def add_noise(src, var = 0.1):
     src_shape = len(src)
@@ -212,9 +224,18 @@ def AutoencoderModel_withSCandBN(input_shape):
     return model
 
 def main():
+    """
+    train_dataset_raw = datamerge.importDataset('dTrain2')
+    val_dataset_raw = pd.read_hdf('dVal.h5')
 
-    #train_dataset_raw = datamerge.importDataset()
-    train_dataset_raw = pd.read_hdf('dVal.h5')
+    print('### Train data processing ###')
+    data, samples, true_labels = extractData(train_dataset_raw)
+    print('### Validation data processing ###')
+    val_data, val_samples, val_labels = extractData(val_dataset_raw)
+    """
+    """ PARTE VECCHIA
+    train_dataset_raw = datamerge.importDataset('dTrain2')
+    val_dataset_raw = pd.read_hdf('dVal.h5')
     # Extract MFCC
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
     data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
@@ -223,6 +244,7 @@ def main():
     samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
     noisy_samples = np.array(data.noisy.tolist()).reshape((-1, 100, 12, 1))
     sample = samples[0]
+    """
     in_shape = (100, 12, 1)
     # autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
 
