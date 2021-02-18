@@ -213,8 +213,8 @@ def AutoencoderModel_withSCandBN(input_shape):
 
 def main():
 
-    train_dataset_raw = datamerge.importDataset()
-    #train_dataset_raw = pd.read_hdf('dVal.h5')
+    #train_dataset_raw = datamerge.importDataset()
+    train_dataset_raw = pd.read_hdf('dVal.h5')
     # Extract MFCC
     train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
     data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
@@ -227,23 +227,24 @@ def main():
     # autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
 
     ### MODEL DEFINITION
-    autoenc = AutoencoderModel_withSCandBN((in_shape))
-    stringa = "AutoencoderModel_withSCandBN_train"
+    autoenc = AutoencoderModel((in_shape))
+    stringa = "AutoencoderModel"
     print(autoenc.summary())
-    tf.keras.utils.plot_model(autoenc, to_file='graph\\'+stringa+'.png')
+    #tf.keras.utils.plot_model(autoenc, to_file='graph\\'+stringa+'.png')
 
     ### MODEL FIT
     autoenc.compile(optimizer="adam", loss="mean_squared_error")
-    history = autoenc.fit(x=noisy_samples, y=samples, epochs=30, batch_size=256)
+    history = autoenc.fit(x=noisy_samples, y=samples, epochs=2, batch_size=256)
     plt.plot(history.history['loss'])
     plt.show()
 
     ### MODEL SAVE
-    autoenc.save('autoencoders_models\\'+stringa+'_train.h5')
+    #autoenc.save('autoencoders_models\\'+stringa+'_train.h5')
 
-    with open("history\\history"+stringa+".txt", "w") as output:
-        output.write(str(history.history['loss']))
+    #with open("history\\history"+stringa+".txt", "w") as output:
+        #output.write(str(history.history['loss']))
 
+    ### ENCODER SAVE
     #feat_out = autoenc.get_layer(name='feature_out').output
     #in_x = autoenc.input
     #encoder = Model(in_x, feat_out)

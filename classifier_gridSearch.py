@@ -62,7 +62,7 @@ def main():
 
     # Model
     print('Model initialization')
-    encoder = tf.keras.models.load_model('autoencoders_models\\encoder_gpu_150_noise.h5')
+    encoder = tf.keras.models.load_model('autoencoders_models\\old\\encoder_gpu_500.h5')
     #print(encoder.summary())
     in_shape = (100, 12, 1)
     inp = tf.keras.Input(in_shape)
@@ -71,6 +71,8 @@ def main():
 
     train_name = 'train_loss'
     val_name = 'val_loss'
+    train_acc = 'accuracy'
+    val_acc = 'val_accuracy'
     for l2 in hyparams:
         for l1 in hyparams:
 
@@ -81,7 +83,14 @@ def main():
             predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
             history = predictor.fit(x=samples, y=true_labels, validation_data=(val_samples, val_labels),
                                 epochs=2, batch_size=256)
-
+            with open("history\\history_"+train_name+"_"+str(l1)+"_"+str(l2)+".txt", "w") as output:
+                output.write(str(history.history['loss']))
+            with open("history\\history_"+val_name+"_"+str(l1)+"_"+str(l2)+".txt", "w") as output:
+                output.write(str(history.history['val_loss']))
+            with open("history\\history_" + train_acc + "_" + str(l1) + "_" + str(l2) + ".txt", "w") as output:
+                output.write(str(history.history['accuracy']))
+            with open("history\\history_" + val_acc + "_" + str(l1) + "_" + str(l2) + ".txt", "w") as output:
+                output.write(str(history.history['val_accuracy']))
 
 
     z = 1  # Linea di debugging

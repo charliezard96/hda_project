@@ -53,7 +53,7 @@ def main():
 
     # model
 
-    encoder = tf.keras.models.load_model('autoencoders_models\\encoder_gpu_150_noise.h5')
+    encoder = tf.keras.models.load_model('autoencoders_models\\old\\encoder_gpu_150_noise.h5')
     print(encoder.summary())
     in_shape = (100, 12, 1)
     inp = tf.keras.Input(in_shape)
