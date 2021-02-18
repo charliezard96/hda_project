@@ -263,7 +263,7 @@ def main():
 
     ### MODEL FIT
     autoenc.compile(optimizer="adam", loss="mean_squared_error")
-    history = autoenc.fit(x=noisy_samples, y=samples, epochs=2, batch_size=256)
+    history = autoenc.fit(x=noisy_samples, y=samples, epochs=2, validation_data=(val_noisy, val_samples), batch_size=256)
     plt.plot(history.history['loss'])
     plt.show()
 
