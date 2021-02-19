@@ -36,6 +36,7 @@ def Classifier(input_shape, l1, l2):
     # Linear layers
     X = Dense(l1, activation='relu', name='linear0')(X_input)
     X = Dense(l2, activation='relu', name='linear1')(X)
+    X = Dropout(rate=0.2)(X)
     X = Dense(11, activation='softmax', name='out')(X)
 
     model = Model(inputs=X_input, outputs=X, name='Classifier')
@@ -69,19 +70,25 @@ def main():
     n_features = 256
     l1 = 1024
     l2 = 1024
-    stringa = "classifier"+l1+"_"+l2+"_150"
+    num_epochs = 300
+    from_AE = "ABN"
+    stringa = "DROP_classifier_"+from_AE+"_"+str(l1)+"_"+str(l2)+"_epochs"+str(num_epochs)
     predictor = Classifier(n_features, l1, l2)
 
     predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-    history = predictor.fit(x=features, y=true_labels, validation_data=(val_features, val_labels), epochs=150, batch_size=256)
+    history = predictor.fit(x=features, y=true_labels, validation_data=(val_features, val_labels), epochs=num_epochs, batch_size=256)
 
     ### MODEL SAVE
-    predictor.save('classifiers\\' + stringa + '_train.h5')
+    predictor.save('classifiers\\' + stringa + '.h5')
     ### HISTORY SAVE
     with open("history\\CLASSIFIER\\loss_history_"+stringa+".txt", "w") as output:
         output.write(str(history.history['loss']))
     with open("history\\CLASSIFIER\\val_loss_history_"+stringa+".txt", "w") as output:
         output.write(str(history.history['val_loss']))
+    with open("history\\CLASSIFIER\\acc_history_" + stringa+ ".txt","w") as output:
+        output.write(str(history.history['accuracy']))
+    with open("history\\CLASSIFIER\\val_acc_history_" + stringa+ ".txt","w") as output:
+        output.write(str(history.history['val_accuracy']))
 
     ### PREDICTION
     predicted_labels = predictor.predict(features)

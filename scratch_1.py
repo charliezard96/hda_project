@@ -18,11 +18,12 @@ def extract_history(stringa):
 
 def main():
 
-    a = extract_history('history\\GRIDSEARCH\\Autoencoder\\historyAutoencoderModel.txt')
-    b = extract_history('history\\history fast on validation 4 fun\\historyAutoencoderModel_withBatch.txt')
+    a = extract_history('history\\CLASSIFIER\\ABN_1024_1024_300epochs\\loss_history_classifier_ABN_1024_1024_epochs300.txt')
+    b = extract_history('history\\CLASSIFIER\\ABN_1024_1024_300epochs\\val_acc_history_classifier_ABN_1024_1024_epochs300.txt')
 
     plt.plot(a)
-    plt.plot(b)
+    #plt.plot(b)
+    plt.grid()
     plt.show()
 
     z=1
