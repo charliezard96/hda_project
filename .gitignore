@@ -18,3 +18,4 @@ autoencoders_models/
 history/
 graph/
 encoders/
+classifiers/

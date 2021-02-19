@@ -33,10 +33,9 @@ def main():
             content = extract_history(data_dir + "\\" + encoder_dir + '\\' + dir + '\\' + f)[1:]
             ax[i, j].plot(content, label=f)
             ax[i, j].grid()
-            ax[i, j].legend()
             ax[i, j].set_xlabel('Epoch')
-            ax[i, j].set_ylabel('Value')
-            ax[i, j].set_title(encoder_dir)
+            ax[i, j].set_ylabel(dir)
+            ax[i, j].set_title(encoder_dir+'\\'+dir)
 
         i = i + 1
         if i == 2 :
@@ -44,6 +43,7 @@ def main():
             j = j + 1
 
     fig.canvas.set_window_title(encoder_dir)
+    ax[0, 0].legend()
     plt.show()
 
     z = 1

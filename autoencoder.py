@@ -238,14 +238,14 @@ def main():
     # autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
 
     ### MODEL DEFINITION
-    autoenc = AutoencoderModel_withSCandBN((in_shape))
-    stringa = "AutoencoderModel_withSCandBN"
+    autoenc = AutoencoderModel_withBatch((in_shape))
+    stringa = "AutoencoderModel_withBatch150"
     print(autoenc.summary())
     #tf.keras.utils.plot_model(autoenc, to_file='graph\\'+stringa+'.png')
 
     ### MODEL FIT
     autoenc.compile(optimizer="adam", loss="mean_squared_error")
-    history = autoenc.fit(x=noisy_samples, y=samples, epochs=50, validation_data=(val_noisy, val_samples), batch_size=256)
+    history = autoenc.fit(x=noisy_samples, y=samples, epochs=150, validation_data=(val_noisy, val_samples), batch_size=256)
     #plt.plot(history.history['loss'])
     #plt.show()
 
