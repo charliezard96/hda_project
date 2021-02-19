@@ -19,7 +19,7 @@ def extract_history(string):
 
 def main():
     data_dir = "history\\GRIDSEARCH"
-    encoder_dir ="Autoencoder"
+    encoder_dir ="wSCandBatch"
     all_metrics = np.array(listdir(data_dir + "\\" + encoder_dir))
 
 
@@ -30,18 +30,20 @@ def main():
 
         all_file = np.array(listdir(data_dir + "\\" + encoder_dir + '\\' + dir))
         for f in all_file:
-            content = extract_history(data_dir + "\\" + encoder_dir + '\\' + dir + '\\' + f)
-            ax[i, j] = plt.plot(content, label=f)
-            #ax[i, j].grid()
-            #ax[i, j].legend()
-            #ax[i, j].set_xlabel('Epoch')
-            #ax[i, j].set_ylabel('Value')
+            content = extract_history(data_dir + "\\" + encoder_dir + '\\' + dir + '\\' + f)[1:]
+            ax[i, j].plot(content, label=f)
+            ax[i, j].grid()
+            ax[i, j].legend()
+            ax[i, j].set_xlabel('Epoch')
+            ax[i, j].set_ylabel('Value')
+            ax[i, j].set_title(encoder_dir)
 
         i = i + 1
         if i == 2 :
             i = 0
             j = j + 1
 
+    fig.canvas.set_window_title(encoder_dir)
     plt.show()
 
     z = 1

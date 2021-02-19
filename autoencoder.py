@@ -231,24 +231,6 @@ def main():
 
     train_dataset_raw = datamerge.importDataset('dTrain2')
     val_dataset_raw = pd.read_hdf('dVal.h5')
-    """
-    print('### Train data processing ###')
-    data, samples, true_labels = extractData(train_dataset_raw)
-    print('### Validation data processing ###')
-    val_data, val_samples, val_labels = extractData(val_dataset_raw)
-    """
-    """ PARTE VECCHIA
-    train_dataset_raw = datamerge.importDataset('dTrain2')
-    val_dataset_raw = pd.read_hdf('dVal.h5')
-    # Extract MFCC
-    train_dataset = pd.DataFrame({'label': train_dataset_raw.label.to_numpy()})
-    data = train_dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
-    data['label'] = train_dataset_raw.label
-    data['noisy'] = data.data.to_frame().applymap(add_noise)
-    samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
-    noisy_samples = np.array(data.noisy.tolist()).reshape((-1, 100, 12, 1))
-    sample = samples[0]
-    """
 
     data, samples, noisy_samples = extractData_noisly(train_dataset_raw)
     val_data, val_samples, val_noisy = extractData_noisly(val_dataset_raw)
@@ -256,22 +238,24 @@ def main():
     # autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
 
     ### MODEL DEFINITION
-    autoenc = AutoencoderModel((in_shape))
-    stringa = "AutoencoderModel"
+    autoenc = AutoencoderModel_withSCandBN((in_shape))
+    stringa = "AutoencoderModel_withSCandBN"
     print(autoenc.summary())
     #tf.keras.utils.plot_model(autoenc, to_file='graph\\'+stringa+'.png')
 
     ### MODEL FIT
     autoenc.compile(optimizer="adam", loss="mean_squared_error")
-    history = autoenc.fit(x=noisy_samples, y=samples, epochs=2, validation_data=(val_noisy, val_samples), batch_size=256)
-    plt.plot(history.history['loss'])
-    plt.show()
+    history = autoenc.fit(x=noisy_samples, y=samples, epochs=50, validation_data=(val_noisy, val_samples), batch_size=256)
+    #plt.plot(history.history['loss'])
+    #plt.show()
 
     ### MODEL SAVE
-    #autoenc.save('autoencoders_models\\'+stringa+'_train.h5')
+    autoenc.save('autoencoders_models\\AUTOENCODER\\'+stringa+'_train.h5')
 
-    #with open("history\\history"+stringa+".txt", "w") as output:
-        #output.write(str(history.history['loss']))
+    with open("history\\AUTOENCODER\\loss_history_"+stringa+".txt", "w") as output:
+        output.write(str(history.history['loss']))
+    with open("history\\AUTOENCODER\\val_loss_history_"+stringa+".txt", "w") as output:
+        output.write(str(history.history['val_loss']))
 
     ### ENCODER SAVE
     #feat_out = autoenc.get_layer(name='feature_out').output

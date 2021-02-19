@@ -17,3 +17,4 @@ dTest.h5
 autoencoders_models/
 history/
 graph/
+encoders/
