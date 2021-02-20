@@ -17,13 +17,39 @@ def extract_history(stringa):
     return content
 
 def main():
+    dir = 'history\\CLASSIFIER\\newDROPrate04_A_SCandBN_1024_1024_200epochs(MIGLIORE)'
+    mod = 'history_newDROPrate04_classifier_A_SCandBN_1204_1024_epochs200.txt'
+    a = extract_history(dir+'\\acc_'+mod)
+    b = extract_history(dir+'\\val_acc_'+mod)
+    c = extract_history(dir+'\\loss_'+mod)
+    d = extract_history(dir+'\\val_loss_'+mod)
 
-    a = extract_history('history\\CLASSIFIER\\ABN_1024_1024_300epochs\\loss_history_classifier_ABN_1024_1024_epochs300.txt')
-    b = extract_history('history\\CLASSIFIER\\ABN_1024_1024_300epochs\\val_acc_history_classifier_ABN_1024_1024_epochs300.txt')
+    fig, ax = plt.subplots(2, 2, figsize=(24, 16))
 
-    plt.plot(a)
-    #plt.plot(b)
-    plt.grid()
+    ax[0, 0].plot(a)
+    ax[0, 0].grid()
+    ax[0, 0].set_xlabel('Epoch')
+    ax[0, 0].set_title('train_acc SC end BN')
+    #ax[0, 0].set_title('loss SC and BN')
+
+    ax[0, 1].plot(b)
+    ax[0, 1].grid()
+    ax[0, 1].set_xlabel('Epoch')
+    ax[0, 1].set_title('val_acc SC and BN')
+    #ax[0, 1].set_title('val loss SC and BN')
+
+    ax[1, 0].plot(c)
+    ax[1, 0].grid()
+    ax[1, 0].set_xlabel('Epoch')
+    ax[1, 0].set_title('train_loss SC and BN')
+    #ax[1, 0].set_title('loss BN')
+
+    ax[1, 1].plot(d)
+    ax[1, 1].grid()
+    ax[1, 1].set_xlabel('Epoch')
+    ax[1, 1].set_title('val_loss SC and BN')
+    #ax[1, 1].set_title('val loss BN')
+
     plt.show()
 
     z=1

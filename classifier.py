@@ -17,6 +17,10 @@ from IPython.display import Image
 import datamerge
 import pandas as pd
 
+import random
+
+random.seed(3)
+
 
 def extractData(dataset_raw):
     data = dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
@@ -36,7 +40,8 @@ def Classifier(input_shape, l1, l2):
     # Linear layers
     X = Dense(l1, activation='relu', name='linear0')(X_input)
     X = Dense(l2, activation='relu', name='linear1')(X)
-    X = Dropout(rate=0.2)(X)
+    #X = Dense(2048, activation='relu', name='linear2')(X)
+    X = Dropout(rate=0.4)(X)
     X = Dense(11, activation='softmax', name='out')(X)
 
     model = Model(inputs=X_input, outputs=X, name='Classifier')
@@ -55,7 +60,7 @@ def main():
 
     # model
     print('###Model initialization###')
-    autoenc = tf.keras.models.load_model('autoencoders_models\\AUTOENCODER\\AutoencoderModel_withBatch150_train.h5')
+    autoenc = tf.keras.models.load_model('autoencoders_models\\AUTOENCODER\\AutoencoderModel_withSCandBN150_train.h5')
 
     feat_out = autoenc.get_layer(name='feature_out').output
     in_x = autoenc.input
@@ -68,11 +73,11 @@ def main():
     val_features = encoder.predict(val_samples)
 
     n_features = 256
-    l1 = 1024
+    l1 = 1204
     l2 = 1024
-    num_epochs = 300
-    from_AE = "ABN"
-    stringa = "DROP_classifier_"+from_AE+"_"+str(l1)+"_"+str(l2)+"_epochs"+str(num_epochs)
+    num_epochs = 200
+    from_AE = "A_SCandBN"
+    stringa = "newDROPrate04_classifier_"+from_AE+"_"+str(l1)+"_"+str(l2)+"_epochs"+str(num_epochs)
     predictor = Classifier(n_features, l1, l2)
 
     predictor.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])

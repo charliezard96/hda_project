@@ -238,8 +238,8 @@ def main():
     # autoenc = tf.keras.models.load_model('autoencoders_models\\autoenc_gpu_500.h5')
 
     ### MODEL DEFINITION
-    autoenc = AutoencoderModel_withBatch((in_shape))
-    stringa = "AutoencoderModel_withBatch150"
+    autoenc = AutoencoderModel_withSCandBN((in_shape))
+    stringa = "AutoencoderModel_withSCandBN150"
     print(autoenc.summary())
     #tf.keras.utils.plot_model(autoenc, to_file='graph\\'+stringa+'.png')
 
