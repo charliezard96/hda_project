@@ -38,7 +38,7 @@ def main():
             ax[i, j].set_title(encoder_dir+'\\'+dir)
 
         i = i + 1
-        if i == 2 :
+        if i == 2:
             i = 0
             j = j + 1
 

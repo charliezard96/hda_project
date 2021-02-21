@@ -5,8 +5,7 @@ from scipy.fftpack import dct
 import numpy as np
 import math
 import matplotlib.pyplot as plt     # Visualization library
-# libreria esterna per i delta, va installata manualmente prima di usarla
-#from python_speech_features.base import delta
+
 
 
 def delta2Comp(mat):
@@ -95,9 +94,6 @@ def fullFeatExtraction(src, mel, Fs, dur=0.025, step=0.010):
 
 def main():
 
-    #sampling rate 16kHz and 1 sec wav file
-    #we need 400 sample for each frame (vedi slide 17)
-    #shift di 160
 
     # Desired parameters
     f_time_dur = 0.025
@@ -105,6 +101,9 @@ def main():
 
     sample_rate = wave.open("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav", 'rb').getframerate()
     src = read("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav")
+    a = src[1]
+    #plt.plot(src[1])
+    #plt.show()
     samples = np.array(src[1], dtype=float)
 
     # Framing
@@ -113,8 +112,7 @@ def main():
     # Apply DFT and compute periodogram
     periodogram_mat = dftAndPer(frame_mat)
 
-    # Prova della fuzione, i risultati son diversi, probabilmente usa una dft diversa (senza hamming?)
-    # prova = np.array(comp_per(frame_mat[0, :], fs=sample_rate)[1])
+
 
     # Mel-filterbanks
     n_fb = 26                               # Number of filters
@@ -131,7 +129,7 @@ def main():
     plt.figure(figsize=(20, 4))
     spectrogram = plt.imshow(np.transpose(log_mat))
     # Mostra lo spettrogramma
-    # plt.show()
+    plt.show()
 
     dct_mat = dct(log_mat)
     dct_mat = dct_mat[:, 1:13]
