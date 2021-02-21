@@ -49,11 +49,11 @@ def main():
 
     ### Confusion matrix
     # Predicted labels
-    y_true = true_labels
+    y_true = true_labels.reshape((-1))
     y_pred = np.argmax(predicted_labels, axis=1)
     accuracy = np.equal(y_true, y_pred)
-    accuracy = np.sum(accuracy)/len(accuracy)
-    print(f"ACCURACY: {accuracy}")
+    accuracy2 = np.sum(accuracy)/len(accuracy)
+    print(f"ACCURACY: {accuracy2}")
     # Evaluate confusion matrix
     cm = metrics.confusion_matrix(y_true, y_pred)
     # Show the confusion matrix
