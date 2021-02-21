@@ -1,18 +1,10 @@
 import numpy as np
-import h5py
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Reshape, Conv2DTranspose, ReLU, Cropping2D
 from sklearn import decomposition, model_selection, metrics, manifold
-
 from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
-from tensorflow.keras.preprocessing import image
-from IPython.display import SVG
-
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import imshow
-from IPython.display import Image
 import datamerge
 import pandas as pd
 
@@ -80,10 +72,6 @@ def main():
     val_acc = 'val_accuracy'
     for l2 in hyparams:
         for l1 in hyparams:
-
-            #classification = Classifier2L(n_features, l1, l2)
-            #prediction = classification(features)
-            #predictor = tf.keras.Model(inputs=inp, outputs=prediction)
 
             print(f'### HYPERPARAMS l1: {l1} and l2: {l2} ###')
             predictor = Classifier2L(n_features, l1, l2)

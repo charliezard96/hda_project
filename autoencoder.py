@@ -1,36 +1,19 @@
 import numpy as np
-import h5py
-import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, Reshape, Conv2DTranspose, ReLU, Cropping2D, Add
-
 from tensorflow.keras.layers import AveragePooling2D, MaxPooling2D, Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
-from tensorflow.keras.preprocessing import image
-from IPython.display import SVG
 
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import imshow
-from IPython.display import Image
 import datamerge
 import pandas as pd
 from tensorflow.keras.initializers import glorot_uniform
+
 def extractData_noisly(dataset_raw):
     data = dataset_raw.data.to_frame().applymap(lambda x: list(x[:, :12].flatten()))
-    #data['label'] = dataset_raw.label.to_numpy()
     data['noisy'] = data.data.to_frame().applymap(add_noise)
     samples = np.array(data.data.tolist()).reshape((-1, 100, 12, 1))
     noisy_samples = np.array(data.noisy.tolist()).reshape((-1, 100, 12, 1))
-    # Non ci servono qua
-    '''
-    # Create label dictionaries (35 different known words)
-    com_labels = ['yes', 'no', 'up', 'down', 'left', 'right', 'on', 'off', 'stop', 'go']  # Command labels
-    label_dict = dict(zip(com_labels, range(len(com_labels))))  # Commands oriented classification
 
-    
-    # Non ci servono qua
-    #true_labels = data['label'].to_frame().applymap(lambda x: label_dict.get(x, len(label_dict))).to_numpy() 
-    '''
     return data, samples, noisy_samples
 
 def add_noise(src, var = 0.1):

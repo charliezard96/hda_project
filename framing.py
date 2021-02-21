@@ -1,10 +1,9 @@
 import wave
 from scipy.io.wavfile import read
-from scipy.signal import periodogram as comp_per
 from scipy.fftpack import dct
 import numpy as np
 import math
-import matplotlib.pyplot as plt     # Visualization library
+import matplotlib.pyplot as plt
 
 
 
@@ -94,16 +93,18 @@ def fullFeatExtraction(src, mel, Fs, dur=0.025, step=0.010):
 
 def main():
 
-
     # Desired parameters
     f_time_dur = 0.025
     f_time_step = 0.010
 
     sample_rate = wave.open("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav", 'rb').getframerate()
     src = read("dataset\\speech_commands_v0.02\\backward\\0a2b400e_nohash_0.wav")
-    a = src[1]
-    #plt.plot(src[1])
-    #plt.show()
+
+    # Show sound
+    plt.figure(figsize=(20, 4))
+    sound_plot = plt.plot(src[1])
+    plt.show()
+
     samples = np.array(src[1], dtype=float)
 
     # Framing
@@ -112,8 +113,6 @@ def main():
     # Apply DFT and compute periodogram
     periodogram_mat = dftAndPer(frame_mat)
 
-
-
     # Mel-filterbanks
     n_fb = 26                               # Number of filters
     f_max = sample_rate / 2                 # Nyquist freq.
@@ -121,32 +120,33 @@ def main():
 
     mel_filterbanks = getMellFilterbanks(frame_mat.shape[1], f_max, f_min, n_fb)
 
-    # Ogni colonna è un filterbank, quindi basta un prodotto tra matrici pe applicare i filti e sommare i valori
     # Apply mel_filterbanks and compute log(E)
     log_mat = np.log(np.matmul(periodogram_mat, mel_filterbanks))
 
     # Show spectrogram
     plt.figure(figsize=(20, 4))
-    spectrogram = plt.imshow(np.transpose(log_mat))
-    # Mostra lo spettrogramma
+    spectrogram = plt.imshow(np.transpose(log_mat), origin='lower')
+    plt.ylabel("Mel channel")
     plt.show()
 
     dct_mat = dct(log_mat)
     dct_mat = dct_mat[:, 1:13]
 
-    # Overall energy on raw frame signal
-    energy = np.reshape(np.log10(np.sum(frame_mat**2, axis=1)), (-1, 1))
+    # Show MFCC
+    plt.figure(figsize=(16, 4))
+    MFCCs = plt.imshow(np.transpose(dct_mat), origin='lower')
+    plt.yticks(range(0, 12, 2))
+    plt.show()
+
 
     # Additional features
     # Delta coefficient
-
-    # Prova della funzione già pronta (risultati diversi)
-    #prova_delta = delta(dct_mat, 2)
-
     delta_mat = delta2Comp(dct_mat)
     delta_delta_mat = delta2Comp(delta_mat)
 
     # Compute energies
+    # Overall energy on raw frame signal
+    energy = np.reshape(np.log10(np.sum(frame_mat ** 2, axis=1)), (-1, 1))
     delta_energy = np.reshape(np.log10(np.sum(delta_mat**2, axis=1)), (-1, 1))
     delta2_energy = np.reshape(np.log10(np.sum(delta_delta_mat**2, axis=1)), (-1, 1))
 
